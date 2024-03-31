@@ -1,0 +1,193 @@
+// schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Person {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  password    String
+  firstName   String
+  lastName    String
+  birthDate   DateTime
+  phoneNumber Int       @unique
+  role        String
+
+  generalAssembly GeneralAssembly[]
+  topic           Topic[]
+  session         Session[]
+  donation        Donation[]
+  membership      Membership?
+  equipment       Equipment[]
+  task            Task[]
+  location        Location @relation(fields: [locationId], references: [id])
+  locationId      String
+}
+
+model Membership {
+  id                String   @id @default(cuid())
+  joinDate          DateTime
+  status            String
+  expiryDate        DateTime
+  accessLevel       String
+  fees              Float
+  renewalDate       DateTime?
+  type              String
+  paymentMethod     String
+  renewalFrequency  Int
+
+  person            Person  @relation(fields: [personId], references: [id])
+  personId          String  @unique
+  bill              Bill    @relation(fields: [billId], references: [id])
+  billId            String  @unique
+}
+
+model Bill {
+  id              String        @id @default(cuid())
+  transactionDate DateTime
+  amount          Float
+  description     String
+  paymentMethod   String
+
+  donation        Donation?
+  membership      Membership?
+  location        Location      @relation(fields: [locationId], references: [id])
+  locationId      String
+}
+
+model Donation {
+  id                String   @id @default(cuid())
+  status            String
+  type              String
+  paymentMethod     String
+  message           String?
+  renewalDate       DateTime?
+  amount            Float
+  transactionDate   DateTime
+  renewalFrequency  Int
+
+  person            Person  @relation(fields: [personId], references: [id])
+  personId          String
+  bill              Bill    @relation(fields: [billId], references: [id])
+  billId            String  @unique
+}
+
+model GeneralAssembly {
+  id           String   @id @default(cuid())
+  meetingDate  DateTime
+  status       String
+  outcome      String
+  creationDate DateTime
+  endingDate   DateTime
+
+  topic       Topic[]
+  person      Person[]
+  activity    Activity  @relation(fields: [activityId], references: [id])
+  activityId  String    @unique
+}
+
+model Topic {
+  id              String   @id @default(cuid())
+  label           String
+  description     String
+  status          String
+  isAnonyme       Boolean
+  modality        String
+
+  generalAssembly GeneralAssembly[]
+  person          Person[]
+}
+
+model Document {
+  id              String   @id @default(cuid())
+  title           String
+  creationDate    DateTime
+  lastModified    DateTime?
+  type            String
+  description     String
+  accessLevel     String
+  version         Int
+  status          String
+  authorFirstName String
+  authorLastName  String
+
+  activity Activity[]
+}
+
+model Activity {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  startDate       DateTime
+  endDate         DateTime
+  type            String
+  status          String
+
+  equipment       Equipment[]
+  document        Document[]
+  generalAssembly GeneralAssembly?
+  task            Task[]
+  location        Location[]
+}
+
+model Equipment {
+  id              String    @id @default(cuid())
+  name            String
+  description     String
+  serialNumber    String
+  manufacturer    String
+  degradationState String
+  status          String
+  purchaseDate    DateTime
+  cost            Float
+
+  person          Person[]
+  activity        Activity[]
+  location        Location[]
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  priority    String
+  status      String
+  description String
+  dueDate     DateTime
+  type        String
+
+  person      Person[]
+  activity    Activity @relation(fields: [activityId], references: [id])
+  activityId  String
+}
+
+model Location {
+  id            String    @id @default(cuid())
+  address       String
+  country       String
+  city          String
+  postalCode    String
+  type          String
+  capacity      Int
+  status        String
+
+  bill          Bill[]
+  person        Person[]
+  activity      Activity @relation(fields: [activityId], references: [id])
+  activityId    String
+  equipment     Equipment[]
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  token          String
+  expirationDate DateTime
+
+  person        Person @relation(fields: [personId], references: [id])
+  personId      String
+}
