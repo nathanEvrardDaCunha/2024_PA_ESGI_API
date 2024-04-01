@@ -3,7 +3,7 @@ import {getAllPerson} from "../repository/personRepository";
 
 export const initRoutes = (app: express.Express) => {
 
-    app.get("/users", async (req: Request, res: Response) => {
+    app.get("/persons", async (req: Request, res: Response) => {
 
         //Do the validation
 

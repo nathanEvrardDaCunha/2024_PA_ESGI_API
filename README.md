@@ -7,3 +7,5 @@
 - Modify the .env
 - Run : docker-compose build
 - Run : docker-compose up
+- Run : prisma migrate dev --name init
+- Run : prisma migrate deploy
