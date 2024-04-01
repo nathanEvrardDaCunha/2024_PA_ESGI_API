@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import {PrismaClient} from "@prisma/client";
 import {initRoutes} from "./handlers/routes";
 import express from "express";
 
