@@ -4,7 +4,8 @@
 # Instruction v1 :
 - Run : npm install
 - Run : prisma generate
-- Modify the .env
+- Create a .env
+- Copy the DATABASE_URL from .env.example to .env for development environment
 - Run : docker-compose build
 - Run : docker-compose up
 - Run : prisma migrate dev --name init
