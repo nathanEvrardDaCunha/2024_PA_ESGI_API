@@ -10,3 +10,7 @@
 - Run : docker-compose up
 - Run : prisma migrate dev --name init
 - Run : prisma migrate deploy
+
+# Problème avec docker :
+- Run : rm  ~/.docker/config.json 
+- Run : docker-compose build

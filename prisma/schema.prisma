@@ -15,7 +15,7 @@ model Person {
   firstName   String
   lastName    String
   birthDate   DateTime
-  phoneNumber Int      @unique
+  phoneNumber String   @unique
   role        String
 
   generalAssembly GeneralAssembly[]

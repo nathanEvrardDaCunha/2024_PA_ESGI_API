@@ -8,8 +8,9 @@ import {getAllTopic} from "../repository/topicRepository";
 import {getAllDocument} from "../repository/documentRepository";
 import {getAllEquipment} from "../repository/equipmentsRepository";
 import {getAllTask} from "../repository/taskRepository";
-import {createLocation, getAllLocation} from "../repository/locationsRepository";
+import {createLocation, doesLocationExist, getAllLocation} from "../repository/locationsRepository";
 import {getAllSession} from "../repository/sessionRepository";
+import {prisma} from "../index";
 
 export const initRoutes = (app: express.Express) => {
 
@@ -31,15 +32,66 @@ export const initRoutes = (app: express.Express) => {
     });
     
     app.post('/persons', async (req: Request, res: Response) => {
+        // TODO : Refactor all of this to remove smelly code
         
-        //TODO : Get the id of the location by combining ADDRESS + POSTAL CODE + COUNTRY, then add the user to the location
-        // else, create the location
+        //Do the validation
+        // TODO : Validate all is attribut first
+        
+        //Do the error returning if necessary
+        // TODO : Check if the person already exist in DB
+        
+        //Do services rules
+        
+        //Do the database queries
+        const { address, postalCode, country, city, type, capacity, status, ...personData } = req.body;
+        
+        let locationId: string | null = null;
         
         try {
-            const newPerson = await createPerson(req.body);
+            const locationExists = await doesLocationExist(address, postalCode, country);
+            
+            if (!locationExists) {
+                try {
+                    const newLocation = await createLocation({
+                        address,
+                        postalCode,
+                        country,
+                        city,
+                        type: type || 'house',
+                        capacity: capacity || 1,
+                        status: status || 'unavailable',
+                    });
+                    locationId = newLocation.id;
+                } catch (error) {
+                    console.error('Error creating location:', error);
+                    return res.status(500).json({ error: 'Internal Server Error' });
+                }
+            } else {
+                const existingLocation = await prisma.location.findFirst({
+                    where: {
+                        address,
+                        postalCode,
+                        country,
+                    },
+                    select: {
+                        id: true,
+                    },
+                });
+                locationId = existingLocation?.id || null;
+            }
+        } catch (error) {
+            console.error('Error checking for existing location:', error);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        
+        try {
+            const newPerson = await createPerson({ ...personData, locationId });
             res.status(201).json(newPerson);
         } catch (error) {
             console.error('Error creating person:', error);
+            if (locationId) {
+                await prisma.location.delete({ where: { id: locationId } });
+            }
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });
@@ -219,6 +271,14 @@ export const initRoutes = (app: express.Express) => {
     app.post('/locations', async (req: Request, res: Response) => {
         
         //TODO : Make a service rule that check that the combination of ADDRESS + POSTAL CODE + COUNTRY does not already exist in DB
+        
+        //Do the validation
+        
+        //Do the error returning if necessary
+        
+        //Do services rules
+        
+        //Do the database queries
         
         try {
             const newLocation = await createLocation(req.body);
