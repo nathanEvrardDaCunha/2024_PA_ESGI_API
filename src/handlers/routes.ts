@@ -13,30 +13,15 @@ import {getAllSession} from "../repository/sessionRepository";
 import {prisma} from "../index";
 import personRouter from './personRoutes';
 import locationRouter from "./locationRoutes";
+import membershipRouter from "./membershipRoutes";
 
 
 export const initRoutes = (app: express.Express) => {
 	
 	app.use('/persons', personRouter);
 	app.use('/locations', locationRouter);
+	app.use('/memberships', membershipRouter);
 	
-	
-	app.get("/memberships", async (req: Request, res: Response) => {
-		//Do the validation
-		
-		//Do the error returning if necessary
-		
-		//Do services rules
-		
-		//Do the database queries
-		try {
-			const memberships = await getAllMembership();
-			res.status(200).json(memberships);
-		} catch (error) {
-			console.error('Error fetching memberships:', error);
-			res.status(500).json({error: 'Internal Server Error'});
-		}
-	});
 	
 	app.get("/bills", async (req: Request, res: Response) => {
 		//Do the validation

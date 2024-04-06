@@ -41,10 +41,10 @@ model Membership {
   paymentMethod    String
   renewalFrequency Int
 
-  person   Person @relation(fields: [personId], references: [id])
-  personId String @unique
-  bill     Bill   @relation(fields: [billId], references: [id])
-  billId   String @unique
+  person   Person? @relation(fields: [personId], references: [id])
+  personId String? @unique
+  bill     Bill?   @relation(fields: [billId], references: [id])
+  billId   String? @unique
 }
 
 model Bill {
