@@ -25,8 +25,8 @@ model Person {
   membership      Membership?
   equipment       Equipment[]
   task            Task[]
-  location        Location          @relation(fields: [locationId], references: [id])
-  locationId      String
+  location        Location?         @relation(fields: [locationId], references: [id])
+  locationId      String?
 }
 
 model Membership {
