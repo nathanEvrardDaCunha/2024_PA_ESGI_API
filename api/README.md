@@ -1,5 +1,5 @@
 # 2024_PA_ESGI
-# Dev v0.0.1
+# Dev v0.0.2
 
 # Instruction v1 :
 - Run : npm install
