@@ -1,0 +1,38 @@
+{
+  "name": "2024_pa_esgi",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "nodemon -e ts --exec ts-node ./src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nathanEvrardDaCunha/2024_PA_ESGI.git"
+  },
+  "author": "EVRARD-DA CUNHA Nathan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nathanEvrardDaCunha/2024_PA_ESGI/issues"
+  },
+  "homepage": "https://github.com/nathanEvrardDaCunha/2024_PA_ESGI#readme",
+  "dependencies": {
+    "@prisma/client": "^5.11.0",
+    "express": "^4.19.1",
+    "joi": "^17.12.2",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.3"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.30"
+  }
+}
