@@ -3,13 +3,13 @@
 
 # Instruction v1 :
 - Run : npm install
-- Run : prisma generate
+- Run : npx prisma generate
 - Create a .env
 - Copy the DATABASE_URL from .env.example to .env for development environment
 - Run : docker-compose build
 - Run : docker-compose up
-- Run : prisma migrate dev --name init
-- Run : prisma migrate deploy
+- Run : npx prisma migrate dev --name init
+- Run : npx prisma migrate deploy
 
 # Problème avec docker :
 - Run : rm  ~/.docker/config.json 

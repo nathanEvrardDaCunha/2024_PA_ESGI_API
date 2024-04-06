@@ -25,14 +25,16 @@ services:
       - db
 
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    working_dir: /app/api
     ports:
       - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://myuser:mypassword@db:5432/mydatabase
     volumes:
-      - ./:/app
-      - /app/node_modules
+      - ./:/app/api
     depends_on:
       - db
 
