@@ -56,8 +56,6 @@ model Bill {
 
   donation   Donation?
   membership Membership?
-  location   Location    @relation(fields: [locationId], references: [id])
-  locationId String
 }
 
 model Donation {
@@ -175,7 +173,6 @@ model Location {
   capacity   Int
   status     String
 
-  bill       Bill[]
   person     Person[]
   activity   Activity?   @relation(fields: [activityId], references: [id])
   activityId String?
