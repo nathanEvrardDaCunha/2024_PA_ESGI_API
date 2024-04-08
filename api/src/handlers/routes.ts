@@ -15,65 +15,23 @@ import personRouter from './personRoutes';
 import locationRouter from "./locationRoutes";
 import membershipRouter from "./membershipRoutes";
 import billRouter from "./billRoutes";
+import donationRouter from "./donationsRoutes";
+import activityRouter from "./activityRoutes";
+import assemblyRouter from "./assemblyRoutes";
+import topicRouter from "./topicRoutes";
 
 
 export const initRoutes = (app: express.Express) => {
 	
 	app.use('/persons', personRouter);
 	app.use('/locations', locationRouter);
-	app.use('/memberships', membershipRouter);
+	
+	app.use('/memberships', membershipRouter); //Need a personId
 	app.use('/bills', billRouter);
-	
-	app.get("/donations", async (req: Request, res: Response) => {
-		//Do the validation
-		
-		//Do the error returning if necessary
-		
-		//Do services rules
-		
-		//Do the database queries
-		try {
-			const donations = await getAllDonation();
-			res.status(200).json(donations);
-		} catch (error) {
-			console.error('Error fetching donations:', error);
-			res.status(500).json({error: 'Internal Server Error'});
-		}
-	});
-	
-	app.get("/assemblies", async (req: Request, res: Response) => {
-		//Do the validation
-		
-		//Do the error returning if necessary
-		
-		//Do services rules
-		
-		//Do the database queries
-		try {
-			const assemblies = await getAllAssembly();
-			res.status(200).json(assemblies);
-		} catch (error) {
-			console.error('Error fetching assemblies:', error);
-			res.status(500).json({error: 'Internal Server Error'});
-		}
-	});
-	
-	app.get("/topics", async (req: Request, res: Response) => {
-		//Do the validation
-		
-		//Do the error returning if necessary
-		
-		//Do services rules
-		
-		//Do the database queries
-		try {
-			const topics = await getAllTopic();
-			res.status(200).json(topics);
-		} catch (error) {
-			console.error('Error fetching topics:', error);
-			res.status(500).json({error: 'Internal Server Error'});
-		}
-	});
+	app.use('/donations', donationRouter); //Need a personId
+	app.use('/activities', activityRouter);
+	app.use('/assemblies', assemblyRouter); //Need a activityId
+	app.use('/topics', topicRouter);
 	
 	app.get("/documents", async (req: Request, res: Response) => {
 		//Do the validation
@@ -88,23 +46,6 @@ export const initRoutes = (app: express.Express) => {
 			res.status(200).json(documents);
 		} catch (error) {
 			console.error('Error fetching documents:', error);
-			res.status(500).json({error: 'Internal Server Error'});
-		}
-	});
-	
-	app.get("/activities", async (req: Request, res: Response) => {
-		//Do the validation
-		
-		//Do the error returning if necessary
-		
-		//Do services rules
-		
-		//Do the database queries
-		try {
-			const activities = await getAllDocument();
-			res.status(200).json(activities);
-		} catch (error) {
-			console.error('Error fetching activities:', error);
 			res.status(500).json({error: 'Internal Server Error'});
 		}
 	});

@@ -14,7 +14,7 @@ export async function createBill(data: Prisma.BillCreateInput) {
 	try {
 		return await prisma.bill.create({data});
 	} catch (error) {
-		console.error('Error creating bills:', error);
+		console.error('Error creating bill:', error);
 		throw error;
 	}
 }
