@@ -20,16 +20,16 @@ export const initRoutes = (app: express.Express) => {
 	app.use('/persons', personRouter);
 	app.use('/locations', locationRouter);
 	
-	app.use('/memberships', membershipRouter);  //Need a personId
 	app.use('/bills', billRouter);
-	app.use('/donations', donationRouter);      //Need a personId
 	app.use('/activities', activityRouter);
-	app.use('/assemblies', assemblyRouter);     //Need a activityId
 	app.use('/topics', topicRouter);
-	
 	app.use('/documents', documentRouter);
 	app.use('/equipments', equipmentRouter);
+	
 	app.use('/tasks', taskRouter);              //Need a activityId
 	app.use('/sessions', sessionRouter);        //Need a personId
+	app.use('/memberships', membershipRouter);  //Need a personId
+	app.use('/assemblies', assemblyRouter);     //Need a activityId
+	app.use('/donations', donationRouter);      //Need a personId
 	
 };

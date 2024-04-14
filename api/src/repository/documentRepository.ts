@@ -10,6 +10,15 @@ export async function getAllDocument() {
 	}
 }
 
+export async function getDocumentById(id: string) {
+	try {
+		return await prisma.document.findUnique({ where: { id } });
+	} catch (error) {
+		console.error('Error fetching document by ID:', error);
+		throw error;
+	}
+}
+
 export async function createDocument(data: Prisma.DocumentCreateInput) {
 	try {
 		return await prisma.document.create({data});

@@ -10,6 +10,15 @@ export async function getAllMembership() {
 	}
 }
 
+export async function getMembershipById(id: string) {
+	try {
+		return await prisma.membership.findUnique({ where: { id } });
+	} catch (error) {
+		console.error('Error fetching membership by ID:', error);
+		throw error;
+	}
+}
+
 export async function createMembership(data: Prisma.MembershipCreateInput) {
 	try {
 		return await prisma.membership.create({data});

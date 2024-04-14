@@ -10,6 +10,15 @@ export async function getAllBill() {
 	}
 }
 
+export async function getBillById(id: string) {
+	try {
+		return await prisma.bill.findUnique({ where: { id } });
+	} catch (error) {
+		console.error('Error fetching bill by ID:', error);
+		throw error;
+	}
+}
+
 export async function createBill(data: Prisma.BillCreateInput) {
 	try {
 		return await prisma.bill.create({data});

@@ -10,6 +10,15 @@ export async function getAllDonation() {
 	}
 }
 
+export async function getDonationById(id: string) {
+	try {
+		return await prisma.donation.findUnique({ where: { id } });
+	} catch (error) {
+		console.error('Error fetching donation by ID:', error);
+		throw error;
+	}
+}
+
 export async function createDonation(data: Prisma.DonationCreateInput) {
 	try {
 		return await prisma.donation.create({data});

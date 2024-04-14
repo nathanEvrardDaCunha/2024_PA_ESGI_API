@@ -10,6 +10,15 @@ export async function getAllTask() {
 	}
 }
 
+export async function getTaskById(id: string) {
+	try {
+		return await prisma.task.findUnique({ where: { id } });
+	} catch (error) {
+		console.error('Error fetching task by ID:', error);
+		throw error;
+	}
+}
+
 export async function createTask(data: Prisma.TaskCreateInput) {
 	try {
 		return await prisma.task.create({data});

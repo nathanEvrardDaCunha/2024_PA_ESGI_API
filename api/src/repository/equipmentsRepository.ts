@@ -10,6 +10,15 @@ export async function getAllEquipment() {
 	}
 }
 
+export async function getEquipmentById(id: string) {
+	try {
+		return await prisma.equipment.findUnique({ where: { id } });
+	} catch (error) {
+		console.error('Error fetching equipment by ID:', error);
+		throw error;
+	}
+}
+
 export async function createEquipment(data: Prisma.EquipmentCreateInput) {
 	try {
 		return await prisma.equipment.create({data});

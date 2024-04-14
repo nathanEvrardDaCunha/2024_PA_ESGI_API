@@ -10,6 +10,15 @@ export async function getAllSession() {
 	}
 }
 
+export async function getSessionById(id: string) {
+	try {
+		return await prisma.session.findUnique({ where: { id } });
+	} catch (error) {
+		console.error('Error fetching session by ID:', error);
+		throw error;
+	}
+}
+
 export async function createSession(data: Prisma.SessionCreateInput) {
 	try {
 		return await prisma.session.create({data});

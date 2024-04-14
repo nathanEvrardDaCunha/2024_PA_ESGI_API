@@ -10,6 +10,15 @@ export async function getAllAssembly() {
 	}
 }
 
+export async function getAssemblyById(id: string) {
+	try {
+		return await prisma.generalAssembly.findUnique({ where: { id } });
+	} catch (error) {
+		console.error('Error fetching assembly by ID:', error);
+		throw error;
+	}
+}
+
 export async function createAssembly(data: Prisma.GeneralAssemblyCreateInput) {
 	try {
 		return await prisma.generalAssembly.create({data});

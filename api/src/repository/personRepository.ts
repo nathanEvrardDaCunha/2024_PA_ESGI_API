@@ -10,6 +10,15 @@ export async function getAllPerson() {
 	}
 }
 
+export async function getPersonById(id: string) {
+	try {
+		return await prisma.person.findUnique({ where: { id } });
+	} catch (error) {
+		console.error('Error fetching person by ID:', error);
+		throw error;
+	}
+}
+
 export async function createPerson(data: Prisma.PersonCreateInput) {
 	try {
 		return await prisma.person.create({data});
