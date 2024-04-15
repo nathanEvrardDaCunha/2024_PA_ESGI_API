@@ -27,3 +27,15 @@ export async function createDocument(data: Prisma.DocumentCreateInput) {
 		throw error;
 	}
 }
+
+export async function updateDocument(id: string, data: Prisma.DocumentUpdateInput) {
+	try {
+		return await prisma.document.update({
+			where: {id},
+			data,
+		});
+	} catch (error) {
+		console.error('Error updating document:', error);
+		throw error;
+	}
+}

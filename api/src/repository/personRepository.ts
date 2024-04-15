@@ -27,3 +27,15 @@ export async function createPerson(data: Prisma.PersonCreateInput) {
 		throw error;
 	}
 }
+
+export async function updatePerson(id: string, data: Prisma.PersonUpdateInput) {
+	try {
+		return await prisma.person.update({
+			where: {id},
+			data,
+		});
+	} catch (error) {
+		console.error('Error updating person:', error);
+		throw error;
+	}
+}

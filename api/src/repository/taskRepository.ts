@@ -27,3 +27,15 @@ export async function createTask(data: Prisma.TaskCreateInput) {
 		throw error;
 	}
 }
+
+export async function updateTask(id: string, data: Prisma.TaskUpdateInput) {
+	try {
+		return await prisma.task.update({
+			where: {id},
+			data,
+		});
+	} catch (error) {
+		console.error('Error updating task:', error);
+		throw error;
+	}
+}

@@ -27,3 +27,15 @@ export async function createEquipment(data: Prisma.EquipmentCreateInput) {
 		throw error;
 	}
 }
+
+export async function updateEquipment(id: string, data: Prisma.EquipmentUpdateInput) {
+	try {
+		return await prisma.equipment.update({
+			where: {id},
+			data,
+		});
+	} catch (error) {
+		console.error('Error updating equipment:', error);
+		throw error;
+	}
+}

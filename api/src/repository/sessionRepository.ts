@@ -27,3 +27,15 @@ export async function createSession(data: Prisma.SessionCreateInput) {
 		throw error;
 	}
 }
+
+export async function updateSession(id: string, data: Prisma.SessionUpdateInput) {
+	try {
+		return await prisma.session.update({
+			where: {id},
+			data,
+		});
+	} catch (error) {
+		console.error('Error updating session:', error);
+		throw error;
+	}
+}

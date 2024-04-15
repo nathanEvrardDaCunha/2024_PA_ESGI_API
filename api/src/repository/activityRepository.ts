@@ -27,3 +27,15 @@ export async function createActivity(data: Prisma.ActivityCreateInput) {
 		throw error;
 	}
 }
+
+export async function updateActivity(id: string, data: Prisma.ActivityUpdateInput) {
+	try {
+		return await prisma.activity.update({
+			where: {id},
+			data,
+		});
+	} catch (error) {
+		console.error('Error updating activity:', error);
+		throw error;
+	}
+}

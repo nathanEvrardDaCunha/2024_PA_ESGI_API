@@ -27,3 +27,15 @@ export async function createMembership(data: Prisma.MembershipCreateInput) {
 		throw error;
 	}
 }
+
+export async function updateMembership(id: string, data: Prisma.MembershipUpdateInput) {
+	try {
+		return await prisma.membership.update({
+			where: {id},
+			data,
+		});
+	} catch (error) {
+		console.error('Error updating membership:', error);
+		throw error;
+	}
+}

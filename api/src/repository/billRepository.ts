@@ -1,4 +1,4 @@
-import { prisma } from "../index";
+import {prisma} from "../index";
 import {Prisma} from "@prisma/client";
 
 export async function getAllBill() {
@@ -24,6 +24,18 @@ export async function createBill(data: Prisma.BillCreateInput) {
 		return await prisma.bill.create({data});
 	} catch (error) {
 		console.error('Error creating bill:', error);
+		throw error;
+	}
+}
+
+export async function updateBill(id: string, data: Prisma.BillUpdateInput) {
+	try {
+		return await prisma.bill.update({
+			where: {id},
+			data,
+		});
+	} catch (error) {
+		console.error('Error updating bill:', error);
 		throw error;
 	}
 }

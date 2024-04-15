@@ -27,3 +27,15 @@ export async function createLocation(data: Prisma.LocationCreateInput) {
 		throw error;
 	}
 }
+
+export async function updateLocation(id: string, data: Prisma.LocationUpdateInput) {
+	try {
+		return await prisma.location.update({
+			where: {id},
+			data,
+		});
+	} catch (error) {
+		console.error('Error updating location:', error);
+		throw error;
+	}
+}

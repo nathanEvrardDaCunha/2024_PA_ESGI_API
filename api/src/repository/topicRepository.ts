@@ -27,3 +27,15 @@ export async function createTopic(data: Prisma.TopicCreateInput) {
 		throw error;
 	}
 }
+
+export async function updateTopic(id: string, data: Prisma.TopicUpdateInput) {
+	try {
+		return await prisma.topic.update({
+			where: {id},
+			data,
+		});
+	} catch (error) {
+		console.error('Error updating topic:', error);
+		throw error;
+	}
+}

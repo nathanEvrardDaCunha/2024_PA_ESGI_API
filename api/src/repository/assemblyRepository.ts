@@ -27,3 +27,15 @@ export async function createAssembly(data: Prisma.GeneralAssemblyCreateInput) {
 		throw error;
 	}
 }
+
+export async function updateAssembly(id: string, data: Prisma.GeneralAssemblyCreateInput) {
+	try {
+		return await prisma.generalAssembly.update({
+			where: {id},
+			data,
+		});
+	} catch (error) {
+		console.error('Error updating assembly:', error);
+		throw error;
+	}
+}

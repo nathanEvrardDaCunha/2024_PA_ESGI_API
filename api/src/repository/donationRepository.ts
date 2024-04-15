@@ -27,3 +27,16 @@ export async function createDonation(data: Prisma.DonationCreateInput) {
 		throw error;
 	}
 }
+
+export async function updateDonation(id: string, data: Prisma.DonationUpdateInput) {
+	try {
+		const updatedDonation = await prisma.donation.update({
+			where: { id },
+			data,
+		});
+		return updatedDonation;
+	} catch (error) {
+		console.error('Error updating donation:', error);
+		throw error;
+	}
+}
