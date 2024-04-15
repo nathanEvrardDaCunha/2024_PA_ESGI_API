@@ -41,8 +41,8 @@ model Membership {
   paymentMethod    String
   renewalFrequency Int
 
-  person   Person? @relation(fields: [personId], references: [id])
-  personId String? @unique
+  person   Person  @relation(fields: [personId], references: [id])
+  personId String  @unique
   bill     Bill?   @relation(fields: [billId], references: [id])
   billId   String? @unique
 }
@@ -56,8 +56,6 @@ model Bill {
 
   donation   Donation?
   membership Membership?
-  location   Location    @relation(fields: [locationId], references: [id])
-  locationId String
 }
 
 model Donation {
@@ -71,10 +69,10 @@ model Donation {
   transactionDate  DateTime
   renewalFrequency Int
 
-  person   Person @relation(fields: [personId], references: [id])
+  person   Person  @relation(fields: [personId], references: [id])
   personId String
-  bill     Bill   @relation(fields: [billId], references: [id])
-  billId   String @unique
+  bill     Bill?   @relation(fields: [billId], references: [id])
+  billId   String? @unique
 }
 
 model GeneralAssembly {
@@ -175,7 +173,6 @@ model Location {
   capacity   Int
   status     String
 
-  bill       Bill[]
   person     Person[]
   activity   Activity?   @relation(fields: [activityId], references: [id])
   activityId String?
