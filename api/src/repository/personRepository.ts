@@ -67,7 +67,7 @@ export async function loginUser(data: LoginPersonRequest) {
 			throw new Error("Username or password not valid");
 		}
 		const token = await generateToken(personRepository.id);
-		return { token };
+		return { id: personRepository.id,token };
 	} catch (error) {
 		console.error("Error logging in user:", error);
 		throw error;
