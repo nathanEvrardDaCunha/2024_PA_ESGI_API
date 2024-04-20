@@ -1,5 +1,5 @@
 import {prisma} from "../index";
-import {Prisma} from "@prisma/client";
+import {Donation, Prisma} from "@prisma/client";
 
 export async function getAllDonation() {
 	try {
@@ -24,6 +24,21 @@ export async function createDonation(data: Prisma.DonationCreateInput) {
 		return await prisma.donation.create({data});
 	} catch (error) {
 		console.error('Error creating donation:', error);
+		throw error;
+	}
+}
+
+// Fonction pour récupérer les donations par ID utilisateur
+export async function getDonationsByUserId(personId: string): Promise<Donation[]> {
+	try {
+		const donations = await prisma.donation.findMany({
+			where: {
+				personId: personId
+			}
+		});
+		return donations;
+	} catch (error) {
+		console.error('Error fetching donations by user ID:', error);
 		throw error;
 	}
 }
