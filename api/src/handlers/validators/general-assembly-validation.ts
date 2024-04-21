@@ -7,6 +7,9 @@ export const GeneralAssemblyValidation = Joi.object({
     outcome: Joi.string().required(),
     creationDate: Joi.date().required(),
     endingDate: Joi.date().required(),
+    person: Joi.array().items(Joi.string()).optional(), // Tableau Person
+    topic: Joi.array().items(Joi.string()).optional(), // Tableau Topic
+    activityId: Joi.string().optional(), // ID de l'activité associée (optionnel)
 });
 
 // Interface pour la création d'une assemblée générale
@@ -16,6 +19,9 @@ export interface GeneralAssemblyRequest {
     outcome: string;
     creationDate: Date;
     endingDate: Date;
+    person?: string[]; // Tableau Person
+    topic?: string[]; // Tableau Topic
+    activityId?: string;
 }
 
 // Validation pour la mise à jour d'une assemblée générale
@@ -25,6 +31,10 @@ export const GeneralAssemblyUpdateValidation = Joi.object({
     outcome: Joi.string().optional(),
     creationDate: Joi.date().optional(),
     endingDate: Joi.date().optional(),
+    person: Joi.array().items(Joi.string()).optional(), // Tableau Person
+    topic: Joi.array().items(Joi.string()).optional(), // Tableau Topic
+    activityId: Joi.string().optional(), // ID de l'activité associée (optionnel)
+
 });
 
 // Interface pour la mise à jour d'une assemblée générale
@@ -34,6 +44,10 @@ export interface GeneralAssemblyUpdateRequest {
     outcome?: string;
     creationDate?: Date;
     endingDate?: Date;
+    person?: string[]; // Tableau Person
+    topic?: string[]; // Tableau Topic
+    activityId?: string; // ID de l'activité associée (optionnel)
+
 }
 
 // Validation pour la liste des assemblées générales

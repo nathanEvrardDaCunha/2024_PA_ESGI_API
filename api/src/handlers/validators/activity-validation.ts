@@ -8,6 +8,10 @@ export const ActivityValidation = Joi.object({
     endDate: Joi.date().required(),
     type: Joi.string().required(),
     status: Joi.string().required(),
+    location: Joi.array().items(Joi.string()).optional(), // Tableau Location
+    task: Joi.array().items(Joi.string()).optional(), // Tableau Task
+    equipment: Joi.array().items(Joi.string()).optional(), // Tableau Equipment
+    document: Joi.array().items(Joi.string()).optional(), // Tableau Document
 });
 
 // Interface pour la création d'une activité
@@ -18,6 +22,10 @@ export interface ActivityRequest {
     endDate: Date;
     type: string;
     status: string;
+    location?: string[];
+    task?: string[];
+    equipment?: string[];
+    document?: string[];
 }
 
 // Validation pour la mise à jour d'une activité
@@ -28,6 +36,10 @@ export const ActivityUpdateValidation = Joi.object({
     endDate: Joi.date().optional(),
     type: Joi.string().optional(),
     status: Joi.string().optional(),
+    location: Joi.array().items(Joi.string()).optional(), // Tableau Location
+    task: Joi.array().items(Joi.string()).optional(), // Tableau Task
+    equipment: Joi.array().items(Joi.string()).optional(), // Tableau Equipment
+    document: Joi.array().items(Joi.string()).optional(), // Tableau Document
 });
 
 // Interface pour la mise à jour d'une activité
@@ -38,6 +50,10 @@ export interface ActivityUpdateRequest {
     endDate?: Date;
     type?: string;
     status?: string;
+    location?: string[];
+    task?: string[];
+    equipment?: string[];
+    document?: string[];
 }
 
 // Validation pour la liste des activités

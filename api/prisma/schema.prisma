@@ -85,8 +85,8 @@ model GeneralAssembly {
 
   topic      Topic[]
   person     Person[]
-  activity   Activity @relation(fields: [activityId], references: [id])
-  activityId String   @unique
+  activity   Activity? @relation(fields: [activityId], references: [id])
+  activityId String?
 }
 
 model Topic {
@@ -126,11 +126,12 @@ model Activity {
   type        String
   status      String
 
-  equipment       Equipment[]
-  document        Document[]
-  generalAssembly GeneralAssembly?
-  task            Task[]
-  location        Location[]
+  equipment         Equipment[]
+  document          Document[]
+  task              Task[]
+  location          Location[]
+  generalAssemblyId String?
+  GeneralAssembly   GeneralAssembly[]
 }
 
 model Equipment {

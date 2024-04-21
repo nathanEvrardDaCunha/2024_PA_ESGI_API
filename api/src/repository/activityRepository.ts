@@ -1,6 +1,10 @@
 import {prisma} from "../index";
 import {Prisma} from "@prisma/client";
-import { ActivityValidation, ActivityUpdateValidation } from "../handlers/validators/activity-validation";
+import {
+	ActivityValidation,
+	ActivityUpdateValidation,
+	ActivityRequest, ActivityUpdateRequest
+} from "../handlers/validators/activity-validation";
 import Joi from "joi";
 
 export async function getAllActivity() {
@@ -21,22 +25,35 @@ export async function getActivityById(id: string) {
 	}
 }
 
-export async function createActivity(data: Prisma.ActivityCreateInput) {
+export async function createActivity(data: ActivityRequest) {
 	try {
-		validateData(data, ActivityValidation); // Valider les données d'entrée
-		return await prisma.activity.create({ data });
+		return await prisma.activity.create({ data: {
+				...data,
+				location: data.location ? { connect: data.location.map((id: string) => ({ id })) } : undefined, // Reliez les location à l'activité
+				equipment: data.equipment ? { connect: data.equipment.map((id: string) => ({ id })) } : undefined, // Reliez les location à l'activité
+				task: data.task ? { connect: data.task.map((id: string) => ({ id })) } : undefined, // Reliez les location à l'activité
+				document: data.document ? { connect: data.document.map((id: string) => ({ id })) } : undefined, // Reliez les location à l'activité
+
+			}
+		});
 	} catch (error) {
 		console.error('Error creating activity:', error);
 		throw error;
 	}
 }
 
-export async function updateActivity(id: string, data: Prisma.ActivityUpdateInput) {
+export async function updateActivity(id: string, data: ActivityUpdateRequest) {
 	try {
 		validateData(data, ActivityUpdateValidation); // Valider les données d'entrée
 		return await prisma.activity.update({
 			where: { id },
-			data,
+			data: {
+				...data,
+				location: data.location ? { connect: data.location.map((id: string) => ({ id })) } : undefined,
+				equipment: data.equipment ? { connect: data.equipment.map((id: string) => ({ id })) } : undefined,
+				task: data.task ? { connect: data.task.map((id: string) => ({ id })) } : undefined,
+				document: data.document ? { connect: data.document.map((id: string) => ({ id })) } : undefined,
+			},
 		});
 	} catch (error) {
 		console.error('Error updating activity:', error);
