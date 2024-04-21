@@ -1,6 +1,6 @@
 import {prisma} from "../index";
 import {Prisma} from "@prisma/client";
-import {LoginPersonRequest, PersonRequest} from "../handlers/validators/person-validation";
+import {LoginPersonRequest, PersonRequest, PersonUpdateRequest} from "../handlers/validators/person-validation";
 import {compare, hash} from "bcrypt";
 import {generateToken} from "../handlers/middleware/auth-middleware";
 
@@ -31,8 +31,12 @@ export async function createPerson(data: Prisma.PersonCreateInput) {
 	}
 }
 
-export async function updatePerson(id: string, data: Prisma.PersonUpdateInput) {
+export async function updatePerson(id: string, data: PersonUpdateRequest) {
 	try {
+		if(data.password){
+			const hashedPassword = await hash(data.password, 10);
+			data.password=hashedPassword;
+		}
 		return await prisma.person.update({
 			where: {id},
 			data,

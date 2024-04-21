@@ -1,5 +1,6 @@
 import {prisma} from "../index";
 import {Prisma} from "@prisma/client";
+import {LocationUpdateRequest} from "../handlers/validators/location-validation";
 
 export async function getAllLocation() {
 	try {
@@ -18,7 +19,61 @@ export async function getLocationById(id: string) {
 		throw error;
 	}
 }
+export const getLocationByPersonId = async (personId: string) => {
+	try {
+		// Utiliser Prisma pour trouver la localisation de l'utilisateur
+		const person = await prisma.person.findUnique({
+			where: {
+				id: personId,
+			},
+			include: {
+				location: true, // Inclure les informations de localisation pour l'utilisateur
+			},
+		});
 
+		if (!person) {
+			throw new Error('User not found');
+		}
+
+		// Récupérer la localisation associée à l'utilisateur
+		const personLocation = person.location;
+
+		return personLocation;
+	} catch (error) {
+		// Gérer les erreurs
+		throw new Error(`Error fetching locations by user ID: ${error}`);
+	}
+};
+export const updateLocationByPersonId = async (personId: string,data:LocationUpdateRequest) => {
+	try {
+		// Utiliser Prisma pour trouver la localisation de l'utilisateur
+		const person = await prisma.person.update({
+			where: {
+				id:personId
+			},
+			data:{
+				location:{
+					update:data,
+				}
+			},
+			include: {
+				location: true, // Inclure les informations de localisation pour l'utilisateur
+			},
+		});
+
+		if (!person) {
+			throw new Error('User not found');
+		}
+
+		// Récupérer la localisation associée à l'utilisateur
+		const personLocation = person.location;
+
+		return personLocation;
+	} catch (error) {
+		// Gérer les erreurs
+		throw new Error(`Error fetching locations by user ID: ${error}`);
+	}
+};
 export async function createLocation(data: Prisma.LocationCreateInput) {
 	try {
 		return await prisma.location.create({data});
