@@ -18,7 +18,29 @@ export async function getTaskById(id: string) {
 		throw error;
 	}
 }
+export const getTaskByPersonId = async (personId: string) => {
+	try {
+		const person = await prisma.person.findUnique({
+			where: {
+				id: personId,
+			},
+			include: {
+				task: true,
+			},
+		});
 
+		if (!person) {
+			throw new Error('User not found');
+		}
+
+		const personTask = person.task;
+
+		return personTask;
+	} catch (error) {
+		// Gérer les erreurs
+		throw new Error(`Error fetching task by user ID: ${error}`);
+	}
+};
 export async function createTask(data: Prisma.TaskCreateInput) {
 	try {
 		return await prisma.task.create({data});

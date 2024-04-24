@@ -156,7 +156,8 @@ model Task {
   priority    String
   status      String
   description String
-  dueDate     DateTime
+  endDate     DateTime
+  startDate   DateTime
   type        String
 
   person     Person[]
