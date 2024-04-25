@@ -60,7 +60,28 @@ export async function updateActivity(id: string, data: ActivityUpdateRequest) {
 		throw error;
 	}
 }
+export async function getActivityByPersonIdViaTask(id: string) {
+	const activities = await prisma.activity.findMany({
+		where: {
+			task: {
+				some: {
+					person: {
+						some: {
+							id: id
+						}
+					}
+				}
+			}
+		},
+		include: {
+			equipment: true,
+			document: true,
+			location: true
+		}
+	});
 
+	return activities;
+}
 // Fonction pour valider les données avec le schéma Joi
 function validateData(data: any, schema: Joi.Schema) {
 	const { error } = schema.validate(data);
