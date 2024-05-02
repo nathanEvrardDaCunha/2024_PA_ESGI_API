@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { TopicValidation, TopicRequest } from "./topic-validation";
 
 // Validation pour la création d'une assemblée générale
 export const GeneralAssemblyValidation = Joi.object({
@@ -8,7 +9,7 @@ export const GeneralAssemblyValidation = Joi.object({
     creationDate: Joi.date().required(),
     endingDate: Joi.date().required(),
     person: Joi.array().items(Joi.string()).optional(), // Tableau Person
-    topic: Joi.array().items(Joi.string()).optional(), // Tableau Topic
+    topics: Joi.array().items(TopicValidation).optional(), // Tableau Topic
     activityId: Joi.string().optional(), // ID de l'activité associée (optionnel)
 });
 
@@ -20,7 +21,7 @@ export interface GeneralAssemblyRequest {
     creationDate: Date;
     endingDate: Date;
     person?: string[]; // Tableau Person
-    topic?: string[]; // Tableau Topic
+    topics?: TopicRequest[]; // Tableau Topic
     activityId?: string;
 }
 
@@ -32,7 +33,7 @@ export const GeneralAssemblyUpdateValidation = Joi.object({
     creationDate: Joi.date().optional(),
     endingDate: Joi.date().optional(),
     person: Joi.array().items(Joi.string()).optional(), // Tableau Person
-    topic: Joi.array().items(Joi.string()).optional(), // Tableau Topic
+    topics: Joi.array().items(Joi.string()).optional(), // Tableau Topic
     activityId: Joi.string().optional(), // ID de l'activité associée (optionnel)
 
 });
@@ -45,7 +46,7 @@ export interface GeneralAssemblyUpdateRequest {
     creationDate?: Date;
     endingDate?: Date;
     person?: string[]; // Tableau Person
-    topic?: string[]; // Tableau Topic
+    topics?: string[]; // Tableau Topic
     activityId?: string; // ID de l'activité associée (optionnel)
 
 }

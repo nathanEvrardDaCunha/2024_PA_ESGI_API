@@ -6,8 +6,12 @@ export const TaskValidation = Joi.object({
     priority: Joi.string().required(),
     status: Joi.string().required(),
     description: Joi.string().required(),
-    dueDate: Joi.date().required(),
+    endDate: Joi.date().required(),
+    startDate: Joi.date().required(),
     type: Joi.string().required(),
+    activityId: Joi.string().required(),
+    person: Joi.array().items(Joi.string()).optional(), // Tableau Person
+
 });
 
 // Interface pour la création d'une tâche
@@ -16,8 +20,12 @@ export interface TaskRequest {
     priority: string;
     status: string;
     description: string;
-    dueDate: Date;
+    endDate: Date;
+    startDate: Date;
     type: string;
+    activityId: string;
+    person?: string[]; // Tableau Person
+
 }
 
 // Validation pour la mise à jour d'une tâche
@@ -26,8 +34,11 @@ export const TaskUpdateValidation = Joi.object({
     priority: Joi.string().optional(),
     status: Joi.string().optional(),
     description: Joi.string().optional(),
-    dueDate: Joi.date().optional(),
+    endDate: Joi.date().optional(),
+    startDate: Joi.date().optional(),
     type: Joi.string().optional(),
+    person: Joi.array().items(Joi.string()).optional(), // Tableau Person
+
 });
 
 // Interface pour la mise à jour d'une tâche
@@ -36,8 +47,11 @@ export interface TaskUpdateRequest {
     priority?: string;
     status?: string;
     description?: string;
-    dueDate?: Date;
+    endDate?: Date;
+    startDate?: Date;
     type?: string;
+    person?: string[]; // Tableau Person
+
 }
 
 // Validation pour la liste des tâches

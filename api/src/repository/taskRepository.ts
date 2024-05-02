@@ -1,5 +1,6 @@
 import {prisma} from "../index";
 import {Prisma} from "@prisma/client";
+import {TaskRequest, TaskUpdateRequest, TaskUpdateValidation} from "../handlers/validators/task-validation";
 
 export async function getAllTask() {
 	try {
@@ -41,20 +42,40 @@ export const getTaskByPersonId = async (personId: string) => {
 		throw new Error(`Error fetching task by user ID: ${error}`);
 	}
 };
-export async function createTask(data: Prisma.TaskCreateInput) {
+export async function createTask(data: TaskRequest) {
 	try {
-		return await prisma.task.create({data});
+		const newTask = await prisma.task.create({
+			data: {
+				...data,
+				// Exemple de transformation: convertir les IDs de personnes en objets relationnels
+				person: data.person ? {
+					connect: data.person.map(id => ({ id }))
+				} : undefined,
+			}
+		});
+		return newTask;
 	} catch (error) {
 		console.error('Error creating task:', error);
 		throw error;
 	}
 }
 
-export async function updateTask(id: string, data: Prisma.TaskUpdateInput) {
+export async function updateTask(id: string, data: TaskUpdateRequest) {
 	try {
+		// Valider les données d'entrée avec Joi
+		const { error } = TaskUpdateValidation.validate(data, { abortEarly: false });
+		if (error) {
+			throw new Error(`Validation error: ${error.details.map(x => x.message).join(', ')}`);
+		}
+
+		// Mise à jour de la tâche dans la base de données en utilisant Prisma
 		return await prisma.task.update({
-			where: {id},
-			data,
+			where: { id },
+			data: {
+				...data,
+				endDate: data.endDate,
+				person: data.person ? { connect: data.person.map(personId => ({ id: personId })) } : undefined,
+			},
 		});
 	} catch (error) {
 		console.error('Error updating task:', error);

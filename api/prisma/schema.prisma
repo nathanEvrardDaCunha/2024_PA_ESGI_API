@@ -8,6 +8,15 @@ datasource db {
   url      = "postgresql://myuser:mypassword@localhost:5432/mydatabase?schema=public"
 }
 
+model Choice {
+  id          String   @id @default(cuid())
+  description String
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id])
+  voters      Person[] @relation("VoterChoices")
+}
+
+// Mise à jour du modèle Person pour inclure les relations avec Choice
 model Person {
   id          String   @id @default(cuid())
   email       String   @unique
@@ -27,6 +36,7 @@ model Person {
   task            Task[]
   location        Location?         @relation(fields: [locationId], references: [id])
   locationId      String?
+  choices         Choice[]          @relation("VoterChoices")
 }
 
 model Membership {
@@ -83,7 +93,7 @@ model GeneralAssembly {
   creationDate DateTime
   endingDate   DateTime
 
-  topic      Topic[]
+  topics     Topic[]   @relation("assemblyTopics")
   person     Person[]
   activity   Activity? @relation(fields: [activityId], references: [id])
   activityId String?
@@ -97,8 +107,10 @@ model Topic {
   isAnonyme   Boolean
   modality    String
 
-  generalAssembly GeneralAssembly[]
-  person          Person[]
+  person            Person[]
+  choices           Choice[]
+  assembly          GeneralAssembly? @relation("assemblyTopics", fields: [generalAssemblyId], references: [id])
+  generalAssemblyId String?
 }
 
 model Document {
