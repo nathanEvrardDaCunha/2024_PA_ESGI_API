@@ -59,15 +59,13 @@ model Bill {
 }
 
 model Donation {
-  id               String    @id @default(cuid())
-  status           String
-  type             String
-  paymentMethod    String
-  message          String?
-  renewalDate      DateTime?
-  amount           Float
-  transactionDate  DateTime
-  renewalFrequency Int
+  id              String   @id @default(cuid())
+  status          String
+  type            String
+  paymentMethod   String
+  message         String?
+  amount          Float
+  transactionDate DateTime
 
   person   Person  @relation(fields: [personId], references: [id])
   personId String
