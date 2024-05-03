@@ -77,3 +77,37 @@ export async function loginUser(data: LoginPersonRequest) {
 		throw error;
 	}
 }
+
+export async function deletePersonById(id: string) {
+	try {
+		const deletedPerson = await prisma.$transaction(async (prisma) => {
+			// Delete session records
+			await prisma.session.deleteMany({ where: { personId: id } });
+			
+			// Delete or update related Donation records
+			await prisma.donation.deleteMany({ where: { personId: id } });
+			await prisma.membership.deleteMany({ where: { personId: id } });
+			
+			// Disconnect the Person record from other related records
+			await prisma.person.update({
+				where: { id },
+				data: {
+					generalAssembly: { disconnect: [] },
+					topic: { disconnect: [] },
+					equipment: { disconnect: [] },
+					task: { disconnect: [] },
+					location: { disconnect: true },
+				},
+			});
+			
+			// Finally, delete the Person record
+			const deletedPerson = await prisma.person.delete({ where: { id } });
+			return deletedPerson;
+		});
+		
+		return deletedPerson;
+	} catch (error) {
+		console.error('Error deleting person by ID:', error);
+		throw error;
+	}
+}

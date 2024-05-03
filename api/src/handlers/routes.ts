@@ -2,7 +2,6 @@ import express from "express";
 import personRouter from './personRoutes';
 import locationRouter from "./locationRoutes";
 import membershipRouter from "./membershipRoutes";
-import billRouter from "./billRoutes";
 import donationRouter from "./donationsRoutes";
 import activityRouter from "./activityRoutes";
 import assemblyRouter from "./assemblyRoutes";
@@ -21,7 +20,6 @@ export const initRoutes = (app: express.Express) => {
 	app.use('/persons', personRouter);
 	app.use('/locations', locationRouter);
 	
-	app.use('/bills', billRouter);
 	app.use('/activities', activityRouter);
 	app.use('/topics', topicRouter);
 	app.use('/documents', documentRouter);
