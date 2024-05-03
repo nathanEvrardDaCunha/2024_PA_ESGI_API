@@ -1,49 +1,100 @@
 {
+
   "name": "2024_pa_esgi",
+
   "version": "0.0.1",
+
   "description": "",
+
   "main": "index.js",
+
   "scripts": {
+
     "test": "echo \"Error: no test specified\" && exit 1",
+
     "start:dev": "nodemon -e ts --exec ts-node ./src/index.ts"
+
   },
+
   "repository": {
+
     "type": "git",
+
     "url": "git+https://github.com/nathanEvrardDaCunha/2024_PA_ESGI.git"
+
   },
+
   "author": "EVRARD-DA CUNHA Nathan",
+
   "license": "ISC",
+
   "bugs": {
+
     "url": "https://github.com/nathanEvrardDaCunha/2024_PA_ESGI/issues"
+
   },
+
   "homepage": "https://github.com/nathanEvrardDaCunha/2024_PA_ESGI#readme",
+
   "dependencies": {
+
     "@prisma/client": "^5.12.1",
+
     "cors": "^2.8.5",
+
     "date-fns": "^3.6.0",
+
     "express": "^4.19.1",
+
     "joi": "^17.12.2",
+
     "jsonwebtoken": "^9.0.2",
+
     "ms": "^2.1.3",
+
     "nodemon": "^3.1.0",
+
     "stripe": "^15.4.0",
+
     "swagger-jsdoc": "^6.2.8",
+
     "swagger-ui-express": "^5.0.0",
+
     "ts-node": "^10.9.2",
+
     "typescript": "^5.4.3",
+
     "uuid": "^9.0.1"
+
   },
+
   "prisma": {
+
     "schema": "prisma/schema.prisma"
+
   },
+
   "devDependencies": {
+
     "@types/bcrypt": "^5.0.2",
+
     "@types/cors": "^2.8.17",
+
     "@types/express": "^4.17.21",
+
     "@types/ms": "^0.7.34",
+
     "@types/node": "^20.11.30",
+
     "@types/stripe": "^8.0.417",
+
+    "@types/uuid": "^9.0.8",
+
     "bcrypt": "^5.1.1",
+
     "prisma": "^5.13.0"
+
   }
+
 }
+
