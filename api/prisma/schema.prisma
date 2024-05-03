@@ -41,21 +41,8 @@ model Membership {
   paymentMethod    String
   renewalFrequency Int
 
-  person   Person  @relation(fields: [personId], references: [id])
-  personId String  @unique
-  bill     Bill?   @relation(fields: [billId], references: [id])
-  billId   String? @unique
-}
-
-model Bill {
-  id              String   @id @default(cuid())
-  transactionDate DateTime
-  amount          Float
-  description     String
-  paymentMethod   String
-
-  donation   Donation?
-  membership Membership?
+  person   Person @relation(fields: [personId], references: [id])
+  personId String @unique
 }
 
 model Donation {
@@ -67,10 +54,8 @@ model Donation {
   amount          Float
   transactionDate DateTime
 
-  person   Person  @relation(fields: [personId], references: [id])
+  person   Person @relation(fields: [personId], references: [id])
   personId String
-  bill     Bill?   @relation(fields: [billId], references: [id])
-  billId   String? @unique
 }
 
 model GeneralAssembly {
