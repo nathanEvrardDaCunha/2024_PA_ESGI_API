@@ -1,5 +1,5 @@
 import {prisma} from "../index";
-import {Prisma} from "@prisma/client";
+import {Membership, Prisma} from "@prisma/client";
 
 export async function getAllMembership() {
 	try {
@@ -36,6 +36,36 @@ export async function updateMembership(id: string, data: Prisma.MembershipUpdate
 		});
 	} catch (error) {
 		console.error('Error updating membership:', error);
+		throw error;
+	}
+}
+
+export async function getMembershipsByUserId(userId: string): Promise<Membership[]> {
+	try {
+		const memberships = await prisma.membership.findMany({
+			where: {
+				personId: userId,
+			},
+			include: {
+				person: true,
+			},
+		});
+		return memberships;
+	} catch (error) {
+		console.error('Error fetching memberships by user ID:', error);
+		throw error;
+	}
+}
+
+export async function deleteMembershipById(membershipId: string): Promise<void> {
+	try {
+		await prisma.membership.delete({
+			where: {
+				id: membershipId,
+			},
+		});
+	} catch (error) {
+		console.error('Error deleting membership:', error);
 		throw error;
 	}
 }
