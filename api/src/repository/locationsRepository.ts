@@ -74,9 +74,56 @@ export const updateLocationByPersonId = async (personId: string,data:LocationUpd
 		throw new Error(`Error fetching locations by user ID: ${error}`);
 	}
 };
-export async function createLocation(data: Prisma.LocationCreateInput) {
+export async function findPersonByEmail(email: string) {
 	try {
-		return await prisma.location.create({data});
+		return await prisma.person.findUnique({ where: { email } });
+	} catch (error) {
+		console.error('Error finding person by email:', error);
+		throw error;
+	}
+}
+
+export async function createLocation(data: Prisma.LocationCreateInput, email: string) {
+	try {
+		const person = await findPersonByEmail(email);
+		
+		if (!person) {
+			throw new Error('Person not found');
+		}
+		
+		const existingLocation = await prisma.location.findFirst({
+			where: {
+				address: data.address,
+				postalCode: data.postalCode,
+				country: data.country,
+			},
+		});
+		
+		if (existingLocation) {
+			// Connect the user to the existing location
+			await prisma.location.update({
+				where: { id: existingLocation.id },
+				data: {
+					person: {
+						connect: { id: person.id },
+					},
+				},
+			});
+			
+			return existingLocation;
+		} else {
+			// Create a new location and add the user to it
+			const newLocation = await prisma.location.create({
+				data: {
+					...data,
+					person: {
+						connect: { id: person.id },
+					},
+				},
+			});
+			
+			return newLocation;
+		}
 	} catch (error) {
 		console.error('Error creating location:', error);
 		throw error;
@@ -91,6 +138,28 @@ export async function updateLocation(id: string, data: Prisma.LocationUpdateInpu
 		});
 	} catch (error) {
 		console.error('Error updating location:', error);
+		throw error;
+	}
+}
+
+export async function findLocationByUserId(userId: string) {
+	try {
+		const person = await prisma.person.findUnique({
+			where: {
+				id: userId,
+			},
+			include: {
+				location: true,
+			},
+		});
+		
+		if (!person) {
+			return null;
+		}
+		
+		return person.location;
+	} catch (error) {
+		console.error('Error finding location by user ID:', error);
 		throw error;
 	}
 }
