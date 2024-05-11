@@ -130,6 +130,40 @@ export async function createLocation(data: Prisma.LocationCreateInput, email: st
 	}
 }
 
+export async function createBusinessLocation(data: Prisma.LocationCreateInput) {
+	try {
+		const existingLocation = await prisma.location.findFirst({
+			where: {
+				address: data.address,
+				postalCode: data.postalCode,
+				country: data.country,
+			},
+		});
+		
+		if (existingLocation) {
+			const updatedLocation = await prisma.location.update({
+				where: { id: existingLocation.id },
+				data: {
+					...data,
+				},
+			});
+			
+			return updatedLocation;
+		} else {
+			const newLocation = await prisma.location.create({
+				data: {
+					...data,
+				},
+			});
+			
+			return newLocation;
+		}
+	} catch (error) {
+		console.error('Error creating business location:', error);
+		throw error;
+	}
+}
+
 export async function updateLocation(id: string, data: Prisma.LocationUpdateInput) {
 	try {
 		return await prisma.location.update({
@@ -160,6 +194,39 @@ export async function findLocationByUserId(userId: string) {
 		return person.location;
 	} catch (error) {
 		console.error('Error finding location by user ID:', error);
+		throw error;
+	}
+}
+
+
+export async function isLocationUsed(locationId: string): Promise<boolean> {
+	try {
+		const isUsedByPerson = await prisma.person.findFirst({
+			where: { locationId },
+		});
+		
+		const isUsedByActivity = await prisma.activity.findFirst({
+			where: { location: { some: { id: locationId } } },
+		});
+		
+		const isUsedByEquipment = await prisma.equipment.findFirst({
+			where: { location: { some: { id: locationId } } },
+		});
+		
+		return !!(isUsedByPerson || isUsedByActivity || isUsedByEquipment);
+	} catch (error) {
+		console.error('Error checking location usage:', error);
+		throw error;
+	}
+}
+
+export async function deleteLocation(locationId: string): Promise<void> {
+	try {
+		await prisma.location.delete({
+			where: { id: locationId },
+		});
+	} catch (error) {
+		console.error('Error deleting location:', error);
 		throw error;
 	}
 }
