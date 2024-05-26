@@ -1,6 +1,8 @@
+import {Prisma,PrismaClient} from "@prisma/client";
+// @ts-ignore
+import { AzureFunction, Context, HttpRequest } from "@azure/functions";
+import { BlobServiceClient } from "@azure/storage-blob";
 import {prisma} from "../index";
-import {Prisma} from "@prisma/client";
-
 export async function getAllDocument() {
 	try {
 		return await prisma.document.findMany();
@@ -39,3 +41,42 @@ export async function updateDocument(id: string, data: Prisma.DocumentUpdateInpu
 		throw error;
 	}
 }
+const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+	const { title, description, fileUrl, authorFirstName, authorLastName } = req.body;
+
+	try {
+		const document = await prisma.document.create({
+			data: {
+				title,
+				description,
+				fileUrl,
+				authorFirstName,
+				authorLastName,
+				creationDate: new Date(),
+				status: 'active',
+				accessLevel: 'public',
+				version: 1,
+				type: 'document',  // Ajout de la propriété manquante
+			},
+		});
+
+		context.res = {
+			status: 201,
+			body: document,
+		};
+	} catch (error) {
+		if (error instanceof Error) {
+			context.res = {
+				status: 500,
+				body: error.message,
+			};
+		} else {
+			context.res = {
+				status: 500,
+				body: 'An unexpected error occurred',
+			};
+		}
+	}
+};
+
+export default httpTrigger;

@@ -58,7 +58,30 @@ export async function createAssembly(data: GeneralAssemblyRequest) {
 		throw error;
 	}
 }
-
+export const getAssemblyByPersonId = async (personId: string) => {
+	try {
+		const assemblies = await prisma.generalAssembly.findMany({
+			where: {
+				person: {
+					some: {
+						id: personId
+					}
+				}
+			},
+			include: {
+				topics: {
+					include: {
+						choices: true  // Assurez-vous que les choix sont inclus
+					}
+				}
+			}
+		});
+		return assemblies;
+	} catch (error) {
+		console.error('Failed to fetch assemblies:', error);
+		throw new Error('Failed to fetch assemblies');
+	}
+};
 export async function updateAssembly(id: string, data: GeneralAssemblyUpdateRequest) {
 	try {
 		return await prisma.generalAssembly.update({

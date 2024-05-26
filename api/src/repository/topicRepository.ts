@@ -38,7 +38,43 @@ export async function createTopic(data: TopicRequest) {
 		throw error;
 	}
 }
+export const submitVote = async (personId: string, topicId: string, choiceId: string) => {
+	try {
+		// Vérifier si un vote existe déjà pour ce sujet et cet utilisateur
+		const existingVote = await prisma.choice.findMany({
+			where: {
+				topicId,
+				voters: {
+					some: {
+						id: personId
+					}
+				}
+			}
+		});
 
+		// S'il existe déjà un vote pour ce sujet, gérer la logique de mise à jour ou d'erreur
+		if (existingVote.length > 0) {
+			// Option 1: Autoriser la mise à jour du vote (changer de choix)
+			// Option 2: Lancer une erreur si l'utilisateur a déjà voté
+			throw new Error('You have already voted on this topic.');
+		}
+
+		// Enregistrement d'un nouveau vote si aucun n'existe
+		const vote = await prisma.choice.update({
+			where: { id: choiceId },
+			data: {
+				voters: {
+					connect: { id: personId }
+				}
+			}
+		});
+
+		return vote;
+	} catch (error) {
+		console.error('Error submitting vote:', error);
+		throw error;
+	}
+};
 export async function updateTopic(id: string, data: TopicUpdateRequest) {
 	try {
 		const updateData: Prisma.TopicUpdateInput = {

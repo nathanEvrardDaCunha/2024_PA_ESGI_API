@@ -108,6 +108,7 @@ model Document {
   status          String
   authorFirstName String
   authorLastName  String
+  fileUrl         String // URL du fichier stocké dans Azure Blob Storage
 
   activity Activity[]
 }
