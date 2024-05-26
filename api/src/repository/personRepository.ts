@@ -97,6 +97,7 @@ export async function deletePersonById(id: string) {
 					equipment: { disconnect: [] },
 					task: { disconnect: [] },
 					location: { disconnect: true },
+					choices: { disconnect: [] },
 				},
 			});
 			
