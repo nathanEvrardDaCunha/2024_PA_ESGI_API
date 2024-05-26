@@ -16,7 +16,6 @@ model Choice {
   voters      Person[] @relation("VoterChoices")
 }
 
-// Mise à jour du modèle Person pour inclure les relations avec Choice
 model Person {
   id          String   @id @default(cuid())
   email       String   @unique
@@ -37,6 +36,8 @@ model Person {
   location        Location?         @relation(fields: [locationId], references: [id])
   locationId      String?
   choices         Choice[]          @relation("VoterChoices")
+  authoredDocuments Document[]      @relation("AuthorDocuments")
+  groupMemberships GroupMembership[]
 }
 
 model Membership {
@@ -106,11 +107,28 @@ model Document {
   accessLevel     String
   version         Int
   status          String
-  authorFirstName String
-  authorLastName  String
   fileUrl         String // URL du fichier stocké dans Azure Blob Storage
+  authorId        String
+  author          Person   @relation("AuthorDocuments", fields: [authorId], references: [id])
+  groups          Group[]  @relation("DocumentGroups")
+}
 
-  activity Activity[]
+model Group {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  documents   Document[]       @relation("DocumentGroups")
+  members     GroupMembership[]
+}
+
+model GroupMembership {
+  id      String @id @default(cuid())
+  person  Person @relation(fields: [personId], references: [id])
+  personId String
+  group   Group  @relation(fields: [groupId], references: [id])
+  groupId String
+
+  @@unique([personId, groupId])
 }
 
 model Activity {
@@ -123,7 +141,6 @@ model Activity {
   status      String
 
   equipment         Equipment[]
-  document          Document[]
   task              Task[]
   location          Location[]
   generalAssemblyId String?

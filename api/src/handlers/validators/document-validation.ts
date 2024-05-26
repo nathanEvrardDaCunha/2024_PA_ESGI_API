@@ -10,8 +10,6 @@ export const DocumentValidation = Joi.object({
     accessLevel: Joi.string().required(),
     version: Joi.number().required(),
     status: Joi.string().required(),
-    authorFirstName: Joi.string().required(),
-    authorLastName: Joi.string().required(),
 });
 
 // Interface pour la création d'un document
@@ -24,8 +22,7 @@ export interface DocumentRequest {
     accessLevel: string;
     version: number;
     status: string;
-    authorFirstName: string;
-    authorLastName: string;
+
 }
 
 // Validation pour la mise à jour d'un document
@@ -38,8 +35,7 @@ export const DocumentUpdateValidation = Joi.object({
     accessLevel: Joi.string().optional(),
     version: Joi.number().optional(),
     status: Joi.string().optional(),
-    authorFirstName: Joi.string().optional(),
-    authorLastName: Joi.string().optional(),
+
 });
 
 // Interface pour la mise à jour d'un document
@@ -52,8 +48,6 @@ export interface DocumentUpdateRequest {
     accessLevel?: string;
     version?: number;
     status?: string;
-    authorFirstName?: string;
-    authorLastName?: string;
 }
 
 // Validation pour la liste des documents
