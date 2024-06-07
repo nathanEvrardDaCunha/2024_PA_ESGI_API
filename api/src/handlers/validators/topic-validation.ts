@@ -19,6 +19,7 @@ export interface TopicRequest {
     description: string;
     status: string;
     isAnonyme: boolean;
+    quorum:number;
     modality: string;
     choices?: ChoiceRequest[]; // Tableau de choix
 }

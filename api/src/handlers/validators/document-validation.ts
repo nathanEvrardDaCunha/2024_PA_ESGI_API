@@ -3,39 +3,28 @@ import Joi from "joi";
 // Validation pour la création d'un document
 export const DocumentValidation = Joi.object({
     title: Joi.string().required(),
-    creationDate: Joi.date().required(),
-    lastModified: Joi.date().optional(),
-    type: Joi.string().required(),
     description: Joi.string().required(),
-    accessLevel: Joi.string().required(),
-    version: Joi.number().required(),
-    status: Joi.string().required(),
+    fileUrl: Joi.string().uri().required(),
+    authorId: Joi.string().required(),
+    groupIds: Joi.array().items(Joi.string().required()).optional(),
 });
 
 // Interface pour la création d'un document
 export interface DocumentRequest {
     title: string;
-    creationDate: Date;
-    lastModified?: Date;
-    type: string;
     description: string;
-    accessLevel: string;
-    version: number;
-    status: string;
-
+    fileUrl: string;
+    authorId: string;
+    groupIds?: string[];
 }
 
 // Validation pour la mise à jour d'un document
 export const DocumentUpdateValidation = Joi.object({
     title: Joi.string().optional(),
-    creationDate: Joi.date().optional(),
-    lastModified: Joi.date().optional(),
-    type: Joi.string().optional(),
     description: Joi.string().optional(),
-    accessLevel: Joi.string().optional(),
-    version: Joi.number().optional(),
-    status: Joi.string().optional(),
-
+    fileUrl: Joi.string().uri().optional(),
+    authorId: Joi.string().optional(),
+    groupIds: Joi.array().items(Joi.string().required()).optional(),
 });
 
 // Interface pour la mise à jour d'un document
@@ -48,6 +37,9 @@ export interface DocumentUpdateRequest {
     accessLevel?: string;
     version?: number;
     status?: string;
+    fileUrl?: string;
+    authorId?: string;
+    groupIds?: string[];
 }
 
 // Validation pour la liste des documents

@@ -8,14 +8,6 @@ datasource db {
   url      = "postgresql://myuser:mypassword@localhost:5432/mydatabase?schema=public"
 }
 
-model Choice {
-  id          String   @id @default(cuid())
-  description String
-  topicId     String
-  topic       Topic    @relation(fields: [topicId], references: [id])
-  voters      Person[] @relation("VoterChoices")
-}
-
 model Person {
   id          String   @id @default(cuid())
   email       String   @unique
@@ -26,18 +18,17 @@ model Person {
   phoneNumber String   @unique
   role        String
 
-  generalAssembly GeneralAssembly[]
-  topic           Topic[]
-  session         Session[]
-  donation        Donation[]
-  membership      Membership?
-  equipment       Equipment[]
-  task            Task[]
-  location        Location?         @relation(fields: [locationId], references: [id])
-  locationId      String?
-  choices         Choice[]          @relation("VoterChoices")
-  authoredDocuments Document[]      @relation("AuthorDocuments")
-  groupMemberships GroupMembership[]
+  generalAssembly   GeneralAssembly[]
+  session           Session[]
+  donation          Donation[]
+  membership        Membership?
+  equipment         Equipment[]
+  task              Task[]
+  location          Location?         @relation(fields: [locationId], references: [id])
+  locationId        String?
+  choices           Choice[]          @relation("VoterChoices")
+  authoredDocuments Document[]        @relation("AuthorDocuments")
+  groupMemberships  GroupMembership[]
 }
 
 model Membership {
@@ -84,62 +75,73 @@ model GeneralAssembly {
 }
 
 model Topic {
-  id          String  @id @default(cuid())
-  label       String
-  description String
-  status      String
-  isAnonyme   Boolean
-  modality    String
-
-  person            Person[]
-  choices           Choice[]
-  assembly          GeneralAssembly? @relation("assemblyTopics", fields: [generalAssemblyId], references: [id])
+  id                String           @id @default(cuid())
+  label             String
+  description       String
+  status            String
+  isAnonyme         Boolean
+  modality          String
+  currentRound      Int              @default(1)
+  totalRounds       Int              @default(1)
+  quorum            Int // Pourcentage de participation nécessaire pour valider un vote
   generalAssemblyId String?
+  generalAssembly   GeneralAssembly? @relation("assemblyTopics", fields: [generalAssemblyId], references: [id])
+  choices           Choice[]
+}
+
+model Choice {
+  id          String   @id @default(cuid())
+  description String
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id])
+  voters      Person[] @relation("VoterChoices")
+  round       Int
 }
 
 model Document {
-  id              String    @id @default(cuid())
-  title           String
-  creationDate    DateTime
-  lastModified    DateTime?
-  type            String
-  description     String
-  accessLevel     String
-  version         Int
-  status          String
-  fileUrl         String // URL du fichier stocké dans Azure Blob Storage
-  authorId        String
-  author          Person   @relation("AuthorDocuments", fields: [authorId], references: [id])
-  groups          Group[]  @relation("DocumentGroups")
+  id           String     @id @default(cuid())
+  title        String
+  creationDate DateTime
+  lastModified DateTime?
+  type         String
+  description  String
+  accessLevel  String
+  version      Int
+  status       String
+  fileUrl      String
+  authorId     String
+  author       Person     @relation("AuthorDocuments", fields: [authorId], references: [id])
+  groups       Group[]    @relation("DocumentGroups")
+  activities   Activity[] @relation("ActivityDocuments")
 }
 
 model Group {
-  id          String           @id @default(cuid())
-  name        String           @unique
+  id          String            @id @default(cuid())
+  name        String            @unique
   description String?
-  documents   Document[]       @relation("DocumentGroups")
+  documents   Document[]        @relation("DocumentGroups")
   members     GroupMembership[]
 }
 
 model GroupMembership {
-  id      String @id @default(cuid())
-  person  Person @relation(fields: [personId], references: [id])
+  id       String @id @default(cuid())
+  person   Person @relation(fields: [personId], references: [id])
   personId String
-  group   Group  @relation(fields: [groupId], references: [id])
-  groupId String
+  group    Group  @relation(fields: [groupId], references: [id])
+  groupId  String
 
   @@unique([personId, groupId])
 }
 
 model Activity {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  startDate   DateTime
-  endDate     DateTime
-  type        String
-  status      String
-
+  id                String            @id @default(cuid())
+  title             String
+  description       String
+  startDate         DateTime
+  endDate           DateTime
+  type              String
+  status            String
+  document          Document[]        @relation("ActivityDocuments")
   equipment         Equipment[]
   task              Task[]
   location          Location[]
@@ -196,7 +198,7 @@ model Location {
 
 model Session {
   id             String   @id @default(cuid())
-  token          String
+  token          String   @unique
   expirationDate DateTime
 
   person   Person @relation(fields: [personId], references: [id])

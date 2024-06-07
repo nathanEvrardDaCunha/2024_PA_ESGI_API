@@ -8,6 +8,7 @@ export const ChoiceValidation = Joi.object({
 // Interface pour la création d'un choix
 export interface ChoiceRequest {
     description: string;
+    round: number;
 }
 
 // Validation pour la mise à jour d'un choix

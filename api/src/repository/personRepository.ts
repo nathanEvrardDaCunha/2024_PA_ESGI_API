@@ -93,7 +93,6 @@ export async function deletePersonById(id: string) {
 				where: { id },
 				data: {
 					generalAssembly: { disconnect: [] },
-					topic: { disconnect: [] },
 					equipment: { disconnect: [] },
 					task: { disconnect: [] },
 					location: { disconnect: true },
