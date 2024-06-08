@@ -58,22 +58,43 @@ export async function registerUser(data: PersonRequest) {
 	}
 }
 
+
 export async function loginUser(data: LoginPersonRequest) {
 	try {
 		const personRepository = await prisma.person.findFirst({
-			where: { email: data.email },
+			where: { email: data.email, role: "user" },
 		});
 		if (!personRepository) {
-			throw new Error("Username or password not valid");
+			throw new Error("Invalid user credentials");
 		}
 		const isValid = await compare(data.password, personRepository.password);
 		if (!isValid) {
-			throw new Error("Username or password not valid");
+			throw new Error("Invalid user credentials");
 		}
 		const token = await generateToken(personRepository.id);
-		return { id: personRepository.id,token };
+		return { id: personRepository.id, token };
 	} catch (error) {
 		console.error("Error logging in user:", error);
+		throw error;
+	}
+}
+
+export async function loginAdmin(data: LoginPersonRequest) {
+	try {
+		const adminRepository = await prisma.person.findFirst({
+			where: { email: data.email, role: "admin" },
+		});
+		if (!adminRepository) {
+			throw new Error("Invalid admin credentials");
+		}
+		const isValid = await compare(data.password, adminRepository.password);
+		if (!isValid) {
+			throw new Error("Invalid admin credentials");
+		}
+		const token = await generateToken(adminRepository.id);
+		return { id: adminRepository.id, token };
+	} catch (error) {
+		console.error("Error logging in admin:", error);
 		throw error;
 	}
 }
