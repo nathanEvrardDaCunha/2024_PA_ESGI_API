@@ -42,6 +42,7 @@ model Membership {
   type             String
   paymentMethod    String
   renewalFrequency Int
+  url              String?
 
   person   Person @relation(fields: [personId], references: [id])
   personId String @unique
@@ -55,6 +56,7 @@ model Donation {
   message         String?
   amount          Float
   transactionDate DateTime
+  url             String?
 
   person   Person @relation(fields: [personId], references: [id])
   personId String
