@@ -47,7 +47,6 @@ export async function createTask(data: TaskRequest) {
 		const newTask = await prisma.task.create({
 			data: {
 				...data,
-				// Exemple de transformation: convertir les IDs de personnes en objets relationnels
 				person: data.person ? {
 					connect: data.person.map(id => ({ id }))
 				} : undefined,
@@ -62,13 +61,11 @@ export async function createTask(data: TaskRequest) {
 
 export async function updateTask(id: string, data: TaskUpdateRequest) {
 	try {
-		// Valider les données d'entrée avec Joi
 		const { error } = TaskUpdateValidation.validate(data, { abortEarly: false });
 		if (error) {
 			throw new Error(`Validation error: ${error.details.map(x => x.message).join(', ')}`);
 		}
 
-		// Mise à jour de la tâche dans la base de données en utilisant Prisma
 		return await prisma.task.update({
 			where: { id },
 			data: {

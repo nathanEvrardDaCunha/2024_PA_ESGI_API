@@ -124,7 +124,7 @@ export const getAssemblyByPersonId = async (personId: string) => {
 			include: {
 				topics: {
 					include: {
-						choices: true  // Assurez-vous que les choix sont inclus
+						choices: true
 					}
 				}
 			}
@@ -148,7 +148,7 @@ export async function updateAssembly(id: string, data: GeneralAssemblyUpdateRequ
 				person: data.person ? { connect: data.person.map((personId: string) => ({ id: personId })) } : undefined,
 				topics: data.topics ? { connect: data.topics.map((topicId: string) => ({ id: topicId })) } : undefined,
 				activity: data.activityId ? { connect: { id: data.activityId } } : undefined,
-				// Ajoutez d'autres champs si nécessaire
+
 			},
 		});
 	} catch (error) {

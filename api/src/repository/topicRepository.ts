@@ -159,7 +159,6 @@ export async function updateTopic(id: string, data: TopicUpdateRequest) {
 			modality: data.modality,
 		};
 
-		// Handling choices if they are part of the update request
 		if (data.choices){
 			updateData["choices"]={
 				updateMany: data.choices.map(choice =>({
@@ -173,7 +172,7 @@ export async function updateTopic(id: string, data: TopicUpdateRequest) {
 			where: { id },
 			data: updateData,
 			include: {
-				choices: true, // Optionally include the updated choices in the returned object
+				choices: true,
 			},
 		});
 	} catch (error) {
