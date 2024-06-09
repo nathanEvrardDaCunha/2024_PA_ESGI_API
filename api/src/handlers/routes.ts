@@ -11,6 +11,7 @@ import equipmentRouter from "./equipmentRoutes";
 import taskRouter from "./taskRoutes";
 import sessionRouter from "./sessionRoutes";
 import choiceRouter from "./choiceRoutes";
+import groupRouter from "./groupRoutes";
 
 
 export const initRoutes = (app: express.Express) => {
@@ -22,6 +23,7 @@ export const initRoutes = (app: express.Express) => {
 	
 	app.use('/activities', activityRouter);
 	app.use('/topics', topicRouter);
+	app.use('/groups', groupRouter);
 	app.use('/documents', documentRouter);
 	app.use('/equipments', equipmentRouter);
 	app.use('/choices', choiceRouter);

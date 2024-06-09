@@ -27,6 +27,23 @@ export async function getAssemblyById(id: string) {
 
 export async function createAssembly(data: GeneralAssemblyRequest) {
 	try {
+		const topicsData = data.topics ? data.topics.map(topicData => ({
+			label: topicData.label,
+			description: topicData.description,
+			status: topicData.status,
+			isAnonyme: topicData.isAnonyme,
+			modality: topicData.modality,
+			quorum: topicData.quorum,
+			currentRound: topicData.currentRound,
+			totalRounds: topicData.totalRounds,
+			choices: topicData.choices ? {
+				create: topicData.choices.map(choiceData => ({
+					description: choiceData.description,
+					round: 1
+				}))
+			} : undefined
+		})) : [];
+
 		const newAssembly = await prisma.generalAssembly.create({
 			data: {
 				meetingDate: data.meetingDate,
@@ -34,22 +51,22 @@ export async function createAssembly(data: GeneralAssemblyRequest) {
 				outcome: data.outcome,
 				creationDate: data.creationDate,
 				endingDate: data.endingDate,
-				topics: data.topics ? {
-					create: data.topics.map(topicData => ({
-						...topicData,
-						choices: topicData.choices ? {
-							create: topicData.choices
-						} : undefined
-					}))
+				topics: {
+					create: topicsData
+				},
+				person: data.person ? {
+					connect: data.person.map((id: string) => ({ id }))
 				} : undefined,
-				person: data.person? { connect: data.person.map((id: string) => ({ id })) }: undefined, // Reliez les personnes à l'assemblée
-				activity:data.activityId?{ connect: { id: data.activityId } } : undefined,
-				// Si vous avez d'autres champs à ajouter, faites-le ici
+				activity: data.activityId ? { connect: { id: data.activityId } } : undefined
 			},
 			include: {
-				person: true, // Incluez les détails des personnes liées à l'assemblée dans la réponse
-				topics: true,
-			},
+				person: true,
+				topics: {
+					include: {
+						choices: true
+					}
+				}
+			}
 		});
 
 		return newAssembly;
@@ -58,6 +75,42 @@ export async function createAssembly(data: GeneralAssemblyRequest) {
 		throw error;
 	}
 }
+export const calculateAssemblyVotes = async (assemblyId: string) => {
+	try {
+		const assembly = await prisma.generalAssembly.findUnique({
+			where: { id: assemblyId },
+			include: {
+				topics: {
+					include: {
+						choices: {
+							include: {
+								voters: true
+							}
+						}
+					}
+				}
+			}
+		});
+
+		if (!assembly) {
+			throw new Error('Assembly not found.');
+		}
+
+		const results = assembly.topics.map(topic => ({
+			topicLabel: topic.label,
+			topicDescription: topic.description,
+			choices: topic.choices.map(choice => ({
+				description: choice.description,
+				voteCount: choice.voters.length
+			}))
+		}));
+
+		return results;
+	} catch (error) {
+		console.error('Error calculating votes:', error);
+		throw error;
+	}
+};
 export const getAssemblyByPersonId = async (personId: string) => {
 	try {
 		const assemblies = await prisma.generalAssembly.findMany({

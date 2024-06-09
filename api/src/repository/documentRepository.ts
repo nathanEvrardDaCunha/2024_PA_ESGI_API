@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
+import {DocumentRequest} from "../handlers/validators/document-validation";
 
 const prisma = new PrismaClient();
 
@@ -27,15 +28,67 @@ export async function getDocumentById(id: string) {
 		throw error;
 	}
 }
+export async function getDocumentsByUser(userId: string) {
+	try {
+		// Récupérer les documents créés par l'utilisateur
+		const createdDocuments = await prisma.document.findMany({
+			where: { authorId: userId },
+		});
 
-export async function createDocument(data: Prisma.DocumentCreateInput & { authorId: string; groupIds: string[] }) {
-	const { title, description, fileUrl, authorId, groupIds } = data;
+		// Récupérer les groupes auxquels l'utilisateur appartient
+		const userGroups = await prisma.groupMembership.findMany({
+			where: { personId: userId },
+			select: { groupId: true },
+		});
 
-	if (!title || !description || !fileUrl || !authorId) {
+		const groupIds = userGroups.map((membership) => membership.groupId);
+
+		// Récupérer les documents associés aux groupes de l'utilisateur
+		const groupDocuments = await prisma.document.findMany({
+			where: {
+				groups: {
+					some: { id: { in: groupIds } },
+				},
+			},
+		});
+
+		// Combiner les documents créés et ceux des groupes
+		const allDocuments = [...createdDocuments, ...groupDocuments];
+
+		// Supprimer les doublons (au cas où un document est à la fois créé et attribué via un groupe)
+		const uniqueDocuments = allDocuments.filter(
+			(doc, index, self) => index === self.findIndex((d) => d.id === doc.id)
+		);
+
+		return uniqueDocuments;
+	} catch (error) {
+		console.error('Error fetching documents by user:', error);
+		throw error;
+	}
+}
+export async function addDocumentToGroup(groupId: string, documentId: string) {
+	try {
+		return await prisma.group.update({
+			where: { id: groupId },
+			data: {
+				documents: {
+					connect: { id: documentId },
+				},
+			},
+		});
+	} catch (error) {
+		console.error('Error adding document to group:', error);
+		throw error;
+	}
+}
+export async function createDocument(data: DocumentRequest) {
+	const { title, description, fileUrl, authorId, groupIds=[] } = data;
+
+	if (!title || !description || !fileUrl || !authorId ) {
 		throw new Error('Missing required fields');
 	}
 
-	const documentData = {
+	const documentData: Prisma.DocumentCreateInput = {
 		title,
 		description,
 		fileUrl,
