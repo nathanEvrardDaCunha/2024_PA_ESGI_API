@@ -100,6 +100,69 @@ export const calculateVotes = async (topicId: string) => {
 		throw error;
 	}
 };
+export const proceedToNextRoundOrEndVoting = async (topicId: string) => {
+	const topic = await prisma.topic.findUnique({
+		where: { id: topicId },
+		include: {
+			generalAssembly: {
+				include: {
+					person: true
+				}
+			}
+		}
+	}) as Prisma.TopicGetPayload<{
+		include: {
+			generalAssembly: {
+				include: {
+					person: true
+				}
+			}
+		}
+	}>;
+
+	if (!topic) throw new Error('Topic not found.');
+	if (!topic.generalAssembly) throw new Error('General Assembly not found.');
+
+	// Récupérer les choix du round actuel
+	const choices = await prisma.choice.findMany({
+		where: { topicId: topic.id, round: topic.currentRound },
+		include: { voters: true }
+	});
+
+	const totalVoters = topic.generalAssembly.person.length;
+	const totalVotes = choices.reduce((acc, choice) => acc + choice.voters.length, 0);
+	const quorumReached = (totalVotes / totalVoters) >= (topic.quorum / 100);
+
+	if (quorumReached) {
+		if (topic.currentRound < topic.totalRounds) {
+			// Filtrer les choix pour garder les meilleurs
+			const topChoices = getTopChoices(choices);
+
+			// Créer de nouveaux choix pour le round suivant
+			const newChoicesData = topChoices.map(choice => ({
+				description: choice.description,
+				round: topic.currentRound + 1,
+				voteCount: 0,
+				topicId: topic.id
+			}));
+
+			await prisma.$transaction([
+				// Créer les nouveaux choix pour le round suivant
+				prisma.choice.createMany({
+					data: newChoicesData
+				}),
+				// Mettre à jour le round actuel du topic
+				prisma.topic.update({
+					where: { id: topicId },
+					data: { currentRound: topic.currentRound + 1 }
+				})
+			]);
+		} else {
+			// Fin du vote, traiter les résultats
+			await finalizeVoting(topicId);
+		}
+	}
+};
 const checkQuorumAndProceed = async (topicId: string) => {
 	const topic = await prisma.topic.findUnique({
 		where: { id: topicId },
@@ -113,20 +176,26 @@ const checkQuorumAndProceed = async (topicId: string) => {
 	});
 
 	if (!topic) throw new Error('Topic not found.');
+	if (!topic.generalAssembly) throw new Error('General Assembly not found.');
 
 	const totalVoters = topic.generalAssembly.person.length;
 	const totalVotes = topic.choices.reduce((acc, choice) => acc + choice.voters.length, 0);
-	const quorumReached = (totalVotes / totalVoters) >= (topic.quorum / 100);
+	const quorumReached = (totalVotes / totalVoters) >= 1;
 
 	if (quorumReached) {
 		if (topic.currentRound < topic.totalRounds) {
-			// Passer au round suivant et filtrer les choix
+
 			const topChoices = getTopChoices(topic.choices);
 
+			const newChoicesData = topChoices.map(choice =>({
+				description:choice.description,
+				round:topic.currentRound+1,
+				voteCount:0,
+				topicId:topic.id
+			}))
 			await prisma.$transaction([
-				prisma.choice.updateMany({
-					where: { id: { in: topChoices.map(choice => choice.id) } },
-					data: { round: topic.currentRound + 1 }
+				prisma.choice.createMany({
+					data:newChoicesData
 				}),
 				prisma.topic.update({
 					where: { id: topicId },
@@ -140,14 +209,21 @@ const checkQuorumAndProceed = async (topicId: string) => {
 	}
 };
 
-const getTopChoices = (choices) => {
+const getTopChoices = (choices: { id: string; voteCount: number; description: string; }[]) => {
 	const sortedChoices = choices.sort((a, b) => b.voteCount - a.voteCount);
 	return sortedChoices.slice(0, 2);
 };
 
-async function finalizeVoting(topicId: string) {
+const finalizeVoting = async (topicId: string) => {
 	console.log(`Finalizing voting for topic ${topicId}`);
-}
+
+	await prisma.topic.update({
+		where: { id: topicId },
+		data: {
+			status: "finished"
+		}
+	});
+};
 
 export async function updateTopic(id: string, data: TopicUpdateRequest) {
 	try {

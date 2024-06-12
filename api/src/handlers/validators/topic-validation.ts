@@ -10,6 +10,8 @@ export const TopicValidation = Joi.object({
     status: Joi.string().required(),
     isAnonyme: Joi.boolean().required(),
     modality: Joi.string().required(),
+    quorum: Joi.number().optional(),
+    totalRounds: Joi.number().optional(),
     choices: Joi.array().items(ChoiceValidation).optional() // Ajout des choix comme un tableau optionnel
 });
 
