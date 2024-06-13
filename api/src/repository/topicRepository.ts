@@ -44,9 +44,17 @@ export async function createTopic(data: TopicRequest) {
 }
 export const submitVote = async (personId: string, topicId: string, choiceId: string) => {
 	try {
+		const topic= await prisma.topic.findUnique({
+			where:{id:topicId},
+			select:{currentRound:true}
+		});
+		if (!topic){
+			throw new Error('Topic not found')
+		}
 		const existingVote = await prisma.choice.findFirst({
 			where: {
 				topicId,
+				round:topic.currentRound,
 				voters: {
 					some: { id: personId }
 				}
@@ -56,6 +64,7 @@ export const submitVote = async (personId: string, topicId: string, choiceId: st
 		if (existingVote) {
 			throw new Error('You have already voted on this topic.');
 		}
+
 
 		const vote = await prisma.choice.update({
 			where: { id: choiceId },
