@@ -114,7 +114,7 @@ const checkQuorumAndProceed = async (topicId: string) => {
 
 	if (!topic) throw new Error('Topic not found.');
 
-	const totalVoters = topic.generalAssembly.person.length;
+	const totalVoters = topic.generalAssembly?topic.generalAssembly.person.length:0;
 	const totalVotes = topic.choices.reduce((acc, choice) => acc + choice.voters.length, 0);
 	const quorumReached = (totalVotes / totalVoters) >= (topic.quorum / 100);
 
@@ -140,7 +140,7 @@ const checkQuorumAndProceed = async (topicId: string) => {
 	}
 };
 
-const getTopChoices = (choices) => {
+const getTopChoices = (choices: any[]) => {
 	const sortedChoices = choices.sort((a, b) => b.voteCount - a.voteCount);
 	return sortedChoices.slice(0, 2);
 };
