@@ -7,7 +7,7 @@ import {
     updateGroup
 } from '../repository/groupRepository';
 import { GroupValidation, GroupUpdateValidation } from './validators/group-validation';
-import {addDocumentToGroup} from "../repository/documentRepository";
+import {createPersonDocumentsFromGroup} from "../repository/documentRepository";
 
 const groupRouter = express.Router();
 
@@ -71,15 +71,16 @@ groupRouter.patch('/:id', async (req: Request, res: Response) => {
 });
 groupRouter.post('/:id/documents', async (req: Request, res: Response) => {
     const { id: groupId } = req.params;
-    const { documentId } = req.body;
+    const { documentId,  path} = req.body;
 
-    if (!documentId) {
-        return res.status(400).json({ error: 'documentId is required' });
+    if (!documentId || !path) {
+        return res.status(400).json({ error: 'documentId and path are required' });
     }
 
     try {
-        const updatedGroup = await addDocumentToGroup(groupId, documentId);
-        res.status(200).json(updatedGroup);
+        // Appel de la méthode pour créer les PersonDocument
+        const createdCount = await createPersonDocumentsFromGroup(groupId, documentId, path);
+        res.status(200).json({ message: `Created ${createdCount} PersonDocument entries.` });
     } catch (error) {
         console.error('Error adding document to group:', error);
         res.status(500).json({ error: 'Internal Server Error' });
