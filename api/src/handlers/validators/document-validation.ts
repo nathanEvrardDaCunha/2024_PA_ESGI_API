@@ -5,6 +5,7 @@ export const DocumentValidation = Joi.object({
     title: Joi.string().required(),
     description: Joi.string().required(),
     fileUrl: Joi.string().uri().required(),
+    type: Joi.string().required(),
     authorId: Joi.string().required(),
     groupIds: Joi.array().items(Joi.string().required()).optional(),
 });
@@ -14,6 +15,7 @@ export interface DocumentRequest {
     title: string;
     description: string;
     fileUrl: string;
+    type: string;
     authorId: string;
     groupIds?: string[];
 }

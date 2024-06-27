@@ -1,8 +1,10 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma} from "@prisma/client";
 import {DocumentRequest} from "../handlers/validators/document-validation";
-
-const prisma = new PrismaClient();
-
+import archiver from 'archiver';
+import path from 'path';
+import * as fs from "fs";
+import axios from "axios";
+import {prisma} from "../index";
 export async function getAllDocument() {
 	try {
 		return await prisma.document.findMany();
@@ -139,23 +141,22 @@ export async function addDocumentToGroup(groupId: string, documentId: string) {
 	}
 }
 export async function createDocument(data: DocumentRequest) {
-	const { title, description, fileUrl, authorId} = data;
-
-	if (!title || !description || !fileUrl || !authorId) {
+	const { title, description, fileUrl, type, authorId } = data;
+	if (!title || !description || !fileUrl || !type || !authorId) {
 		throw new Error('Missing required fields');
 	}
 
 	const documentData: Prisma.DocumentCreateInput = {
-		title,
+		title:title+"."+type,
 		description,
 		fileUrl,
+		type,
 		author: { connect: { id: authorId } },
 		creationDate: new Date(),
 		lastModified: new Date(),
 		status: 'active',
 		accessLevel: 'private',
 		version: 1,
-		type: 'document',
 	};
 
 	try {
@@ -223,6 +224,74 @@ export async function updateFolderPaths(oldPath: string, newPath: string){
 		});
 	}
 };
+export interface CustomDocument {
+	id: string;
+	title: string;
+	creationDate: Date;
+	lastModified: Date | null;
+	type: string;
+	description: string;
+	accessLevel: string;
+	version: number;
+	status: string;
+	fileUrl: string;
+	authorId: string;
+	path: string;
+}
+
+const addFilesToArchive = async (archive: archiver.Archiver, documents: CustomDocument[], rootFolder: string) => {
+	const addedFiles = []; // Array to track added files
+
+	for (const doc of documents) {
+		if (!doc.fileUrl) {
+			console.warn(`Document ${doc.title} does not have a fileUrl`);
+			continue;
+		}
+		const response = await axios.get(doc.fileUrl, { responseType: 'stream' });
+
+		// Remove the root folder from the path
+		let relativePath = doc.path.replace(rootFolder, '');
+		if (relativePath.startsWith('/')) {
+			relativePath = relativePath.substring(1);
+		}
+
+		// Remove the initial folder part from the relative path to avoid nesting in the archive
+		const pathParts = relativePath.split('/');
+		pathParts.shift();
+		relativePath = pathParts.join('/');
+
+		// Adjust the file path to ensure the folder structure is maintained
+		const filePath = relativePath ? `${relativePath}/${doc.title}` : `${doc.title}`;
+
+		archive.append(response.data, { name: filePath });
+
+		// Track the added file
+		addedFiles.push(filePath);
+	}
+
+	// Debugging output to show the content of the archive
+	console.log("Files added to archive:", addedFiles);
+};
+
+export const createZipFromDocuments = async (documents: CustomDocument[], res: any, rootFolder: string): Promise<void> => {
+	const archive = archiver('zip', {
+		zlib: { level: 9 }
+	});
+
+	archive.on('error', function(err) {
+		throw err;
+	});
+
+	res.attachment(`${rootFolder}.zip`);
+	archive.pipe(res);
+
+	await addFilesToArchive(archive, documents, rootFolder);
+
+	await archive.finalize();
+};
+
+
+
 export async function updateDocument(id: string, data: Prisma.DocumentUpdateInput) {
 	try {
 		return await prisma.document.update({
