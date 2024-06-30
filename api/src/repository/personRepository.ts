@@ -3,6 +3,7 @@ import {Prisma} from "@prisma/client";
 import {LoginPersonRequest, PersonRequest, PersonUpdateRequest} from "../handlers/validators/person-validation";
 import {compare, hash} from "bcrypt";
 import {generateToken} from "../handlers/middleware/auth-middleware";
+import nodemailer from "nodemailer";
 
 export async function getAllPerson() {
 	try {
@@ -58,6 +59,68 @@ export async function registerUser(data: PersonRequest) {
 	}
 }
 
+export async function resetPassword(email: string) {
+	try {
+		const person = await prisma.person.findUnique({ where: { email } });
+		if (!person) {
+			throw new Error("User not found");
+		}
+		
+		const temporaryPassword = generateTemporaryPassword();
+		const hashedPassword = await hash(temporaryPassword, 10);
+		
+		await prisma.person.update({
+			where: { email },
+			data: { password: hashedPassword },
+		});
+		
+		await sendResetPasswordEmail(email, temporaryPassword);
+	} catch (error) {
+		console.error("Error resetting password:", error);
+		throw error;
+	}
+}
+
+function generateTemporaryPassword() {
+	const length = 8;
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	let password = "";
+	for (let i = 0; i < length; i++) {
+		password += charset.charAt(Math.floor(Math.random() * charset.length));
+	}
+	return password;
+}
+
+async function sendResetPasswordEmail(email: string, temporaryPassword: string) {
+	try {
+		// Create a transporter using Elastic Email
+		const transporter = nodemailer.createTransport({
+			host: "smtp.elasticemail.com",
+			port: 2525,
+			secure: false,
+			auth: {
+				user: "zharksmail2@gmail.com",
+				pass: "9F3057339C068693F0201866AF0DBF99797F",
+			},
+		});
+		
+		// Compose the email message
+		const mailOptions = {
+			from: "zharksmail2@gmail.com",
+			to: email,
+			subject: "Password Reset",
+			text: `Your temporary password is: ${temporaryPassword}`,
+			html: `<p>Your temporary password is: <strong>${temporaryPassword}</strong></p>`,
+		};
+		
+		// Send the email
+		await transporter.sendMail(mailOptions);
+		console.log(`Reset password email sent to ${email}`);
+	} catch (error) {
+		console.error("Error sending reset password email:", error);
+		throw error;
+	}
+}
 
 export async function loginUser(data: LoginPersonRequest) {
 	try {
@@ -102,14 +165,10 @@ export async function loginAdmin(data: LoginPersonRequest) {
 export async function deletePersonById(id: string) {
 	try {
 		const deletedPerson = await prisma.$transaction(async (prisma) => {
-			// Delete session records
 			await prisma.session.deleteMany({ where: { personId: id } });
-			
-			// Delete or update related Donation records
 			await prisma.donation.deleteMany({ where: { personId: id } });
 			await prisma.membership.deleteMany({ where: { personId: id } });
-			
-			// Disconnect the Person record from other related records
+			await prisma.document.deleteMany({ where: { authorId: id } });
 			await prisma.person.update({
 				where: { id },
 				data: {
@@ -120,8 +179,6 @@ export async function deletePersonById(id: string) {
 					choices: { disconnect: [] },
 				},
 			});
-			
-			// Finally, delete the Person record
 			const deletedPerson = await prisma.person.delete({ where: { id } });
 			return deletedPerson;
 		});
