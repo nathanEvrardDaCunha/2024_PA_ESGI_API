@@ -30,6 +30,8 @@ model Person {
   authoredDocuments Document[]        @relation("AuthorDocuments")
   groupMemberships  GroupMembership[]
   documentAccess    PersonDocument[]
+  Response          Response[]
+  SurveyResponse    SurveyResponse[]
 }
 
 model Membership {
@@ -75,6 +77,7 @@ model GeneralAssembly {
   person     Person[]
   activity   Activity? @relation(fields: [activityId], references: [id])
   activityId String?
+  surveys    Survey[]
 }
 
 model Topic {
@@ -219,4 +222,50 @@ model PersonDocument {
   path       String
 
   @@unique([personId, documentId])
+}
+
+model Survey {
+  id             String           @id @default(cuid())
+  title          String
+  description    String?
+  assembly       GeneralAssembly  @relation(fields: [assemblyId], references: [id])
+  assemblyId     String
+  questions      Question[]
+  SurveyResponse SurveyResponse[]
+}
+
+model Question {
+  id        String       @id @default(cuid())
+  label     String
+  type      QuestionType
+  options   String[]     @default([])
+  survey    Survey       @relation(fields: [surveyId], references: [id])
+  surveyId  String
+  responses Response[]
+}
+
+model Response {
+  id               String          @id @default(cuid())
+  answer           String
+  question         Question        @relation(fields: [questionId], references: [id])
+  questionId       String
+  respondent       Person          @relation(fields: [respondentId], references: [id])
+  respondentId     String
+  SurveyResponse   SurveyResponse? @relation(fields: [surveyResponseId], references: [id])
+  surveyResponseId String?
+}
+
+enum QuestionType {
+  TEXT
+  MULTIPLE_CHOICE
+  CHECKBOX
+}
+
+model SurveyResponse {
+  id           String     @id @default(cuid())
+  survey       Survey     @relation(fields: [surveyId], references: [id])
+  surveyId     String
+  respondent   Person     @relation(fields: [respondentId], references: [id])
+  respondentId String
+  answers      Response[]
 }

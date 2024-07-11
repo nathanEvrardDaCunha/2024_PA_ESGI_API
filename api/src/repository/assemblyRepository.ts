@@ -18,7 +18,11 @@ export async function getAllAssembly() {
 
 export async function getAssemblyById(id: string) {
 	try {
-		return await prisma.generalAssembly.findUnique({ where: { id } });
+		return await prisma.generalAssembly.findUnique({ where: { id },
+			include: {
+				surveys: true,
+				topics:true,
+			}, });
 	} catch (error) {
 		console.error('Error fetching assembly by ID:', error);
 		throw error;
@@ -44,6 +48,18 @@ export async function createAssembly(data: GeneralAssemblyRequest) {
 			} : undefined
 		})) : [];
 
+		const surveysData = data.surveys ? data.surveys.map(surveyData => ({
+			title: surveyData.title,
+			description: surveyData.description,
+			questions: {
+				create: surveyData.questions.map(questionData => ({
+					label: questionData.label,
+					type: questionData.type,
+					options: questionData.options,
+				}))
+			}
+		})) : [];
+
 		const newAssembly = await prisma.generalAssembly.create({
 			data: {
 				meetingDate: data.meetingDate,
@@ -53,6 +69,9 @@ export async function createAssembly(data: GeneralAssemblyRequest) {
 				endingDate: data.endingDate,
 				topics: {
 					create: topicsData
+				},
+				surveys: {
+					create: surveysData
 				},
 				person: data.person ? {
 					connect: data.person.map((id: string) => ({ id }))
@@ -65,6 +84,11 @@ export async function createAssembly(data: GeneralAssemblyRequest) {
 					include: {
 						choices: true
 					}
+				},
+				surveys: {
+					include: {
+						questions: true
+					}
 				}
 			}
 		});
@@ -75,6 +99,7 @@ export async function createAssembly(data: GeneralAssemblyRequest) {
 		throw error;
 	}
 }
+
 export const calculateAssemblyVotes = async (assemblyId: string) => {
 	try {
 		const assembly = await prisma.generalAssembly.findUnique({
@@ -97,12 +122,18 @@ export const calculateAssemblyVotes = async (assemblyId: string) => {
 		}
 
 		const results = assembly.topics.map(topic => ({
+			id:topic.id,
 			topicLabel: topic.label,
 			topicDescription: topic.description,
 			choices: topic.choices.map(choice => ({
+				id: choice.id,
+				round: choice.round,
 				description: choice.description,
 				voteCount: choice.voters.length
-			}))
+			})),
+			currentRound: topic.currentRound,
+			totalRounds: topic.totalRounds,
+			quorum: topic.quorum,
 		}));
 
 		return results;
@@ -111,6 +142,7 @@ export const calculateAssemblyVotes = async (assemblyId: string) => {
 		throw error;
 	}
 };
+
 export const getAssemblyByPersonId = async (personId: string) => {
 	try {
 		const assemblies = await prisma.generalAssembly.findMany({
@@ -135,6 +167,7 @@ export const getAssemblyByPersonId = async (personId: string) => {
 		throw new Error('Failed to fetch assemblies');
 	}
 };
+
 export async function updateAssembly(id: string, data: GeneralAssemblyUpdateRequest) {
 	try {
 		return await prisma.generalAssembly.update({
@@ -148,7 +181,6 @@ export async function updateAssembly(id: string, data: GeneralAssemblyUpdateRequ
 				person: data.person ? { connect: data.person.map((personId: string) => ({ id: personId })) } : undefined,
 				topics: data.topics ? { connect: data.topics.map((topicId: string) => ({ id: topicId })) } : undefined,
 				activity: data.activityId ? { connect: { id: data.activityId } } : undefined,
-
 			},
 		});
 	} catch (error) {
@@ -156,6 +188,7 @@ export async function updateAssembly(id: string, data: GeneralAssemblyUpdateRequ
 		throw error;
 	}
 }
+
 export async function updateAssemblyWithPersons(assemblyId: string, personIds: any[]) {
 	try {
 		return await prisma.generalAssembly.update({
