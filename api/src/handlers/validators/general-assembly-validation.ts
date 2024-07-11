@@ -1,5 +1,6 @@
-import Joi from "joi";
-import { TopicValidation, TopicRequest } from "./topic-validation";
+import Joi from 'joi';
+import { TopicValidation, TopicRequest } from './topic-validation';
+import { SurveyValidation, SurveyRequest } from './survey-validation';
 
 // Validation pour la création d'une assemblée générale
 export const GeneralAssemblyValidation = Joi.object({
@@ -10,6 +11,7 @@ export const GeneralAssemblyValidation = Joi.object({
     endingDate: Joi.date().required(),
     person: Joi.array().items(Joi.string()).optional(), // Tableau Person
     topics: Joi.array().items(TopicValidation).optional(), // Tableau Topic
+    surveys: Joi.array().items(SurveyValidation).optional(), // Tableau Survey
     activityId: Joi.string().optional(), // ID de l'activité associée (optionnel)
 });
 
@@ -22,6 +24,7 @@ export interface GeneralAssemblyRequest {
     endingDate: Date;
     person?: string[]; // Tableau Person
     topics?: TopicRequest[]; // Tableau Topic
+    surveys?: SurveyRequest[]; // Tableau Survey
     activityId?: string;
 }
 
@@ -34,8 +37,8 @@ export const GeneralAssemblyUpdateValidation = Joi.object({
     endingDate: Joi.date().optional(),
     person: Joi.array().items(Joi.string()).optional(), // Tableau Person
     topics: Joi.array().items(Joi.string()).optional(), // Tableau Topic
+    surveys: Joi.array().items(SurveyValidation).optional(), // Tableau Survey
     activityId: Joi.string().optional(), // ID de l'activité associée (optionnel)
-
 });
 
 // Interface pour la mise à jour d'une assemblée générale
@@ -47,8 +50,8 @@ export interface GeneralAssemblyUpdateRequest {
     endingDate?: Date;
     person?: string[]; // Tableau Person
     topics?: string[]; // Tableau Topic
+    surveys?: SurveyRequest[]; // Tableau Survey
     activityId?: string; // ID de l'activité associée (optionnel)
-
 }
 
 // Validation pour la liste des assemblées générales

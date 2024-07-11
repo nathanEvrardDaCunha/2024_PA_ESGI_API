@@ -12,6 +12,7 @@ import taskRouter from "./taskRoutes";
 import sessionRouter from "./sessionRoutes";
 import choiceRouter from "./choiceRoutes";
 import groupRouter from "./groupRoutes";
+import surveyRouter from "./surveyRoutes";
 
 
 export const initRoutes = (app: express.Express) => {
@@ -32,5 +33,6 @@ export const initRoutes = (app: express.Express) => {
 	app.use('/memberships', membershipRouter);  //Need a personId
 	app.use('/assemblies', assemblyRouter);     //Need a activityId
 	app.use('/donations', donationRouter);      //Need a personId
+	app.use('/surveys', surveyRouter);
 	
 };
