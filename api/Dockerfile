@@ -1,20 +1,46 @@
-# Use the official Node.js 18 image as the base
-FROM node:20
+# Étape de build
+FROM node:21-alpine AS build
 
-# Set the working directory to /app/api
-WORKDIR /app/api
+# Installer les dépendances système nécessaires
+RUN apk add --no-cache python3 make g++ git
 
-# Copy package.json and package-lock.json
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier les fichiers nécessaires pour l'installation des dépendances
 COPY package*.json ./
+COPY tsconfig.json ./
+COPY prisma/ ./prisma/
 
-# Install dependencies (including ts-node)
+# Installer les dépendances
 RUN npm install
 
-# Copy the rest of the application files
+# Générer le client Prisma
+RUN npx prisma generate
+
+# Copier le reste des fichiers du projet
 COPY . .
 
-# Expose the port your application will listen on
+# Compiler le projet TypeScript
+RUN npm run build
+
+# Étape de production
+FROM node:21-alpine AS prod
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier les node_modules et les fichiers compilés
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/prisma/ ./prisma/
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
+
+# Copier le fichier .env pour les variables d'environnement
+COPY --from=build /app/.env ./
+
+# Exposer le port sur lequel l'API va tourner (si nécessaire)
 EXPOSE 3000
 
-# Set the default command to run the application
-CMD ["npm", "run", "start:dev"]
+# Lancer le serveur Node.js
+CMD ["npm", "start"]

@@ -2,43 +2,52 @@ version: '3.8'
 
 services:
   db:
+    container_name: db3
     image: postgres:latest
-    restart: always
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydatabase
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "myuser","-d","mydatabase"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
-    image: dpage/pgadmin4:latest
-    restart: always
+    container_name: pgadmin
+    image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "5050:80"
+      - "5050:80"  # Changement de port pour pgAdmin
     depends_on:
-      - db
-    links:
-      - "db:postgres"
+      db:
+        condition: service_healthy
 
   api:
+    container_name: api_service
     build:
       context: .
-      dockerfile: ./Dockerfile
-    working_dir: /app/api
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    environment:
-      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/mydatabase
-    volumes:
-      - ./:/app/api
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
 
 volumes:
   postgres-data:
+    driver: local
