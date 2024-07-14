@@ -13,6 +13,7 @@ async function main() {
     app.use(cors({
         origin: ["http://localhost:3001", "http://localhost:3002"],
         optionsSuccessStatus: 200,
+        credentials: true,
     }));
 
     app.use(express.json());
