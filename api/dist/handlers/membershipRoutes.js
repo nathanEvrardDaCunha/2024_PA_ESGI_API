@@ -76,12 +76,13 @@ membershipRouter.patch('/:id', (req, res) => __awaiter(void 0, void 0, void 0, f
     }
 }));
 membershipRouter.post('/create-checkout-session', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     const { amount, userId, type, paymentMethod, renewalFrequency } = req.body;
     try {
-        const existingMembership = yield index_1.prisma.membership.findUnique({
-            where: { personId: userId },
-            include: { person: true },
+        const existingMembership = yield index_1.prisma.membership.findFirst({
+            where: {
+                personId: userId,
+                status: 'active'
+            },
         });
         if (existingMembership) {
             return res.status(400).json({ error: 'User already has an active membership.' });
@@ -94,12 +95,6 @@ membershipRouter.post('/create-checkout-session', (req, res) => __awaiter(void 0
                         currency: 'eur',
                         product_data: {
                             name: 'Membership',
-                            metadata: {
-                                userId,
-                                type,
-                                paymentMethod,
-                                renewalFrequency: renewalFrequency.toString(),
-                            },
                         },
                         unit_amount: amount,
                     },
@@ -107,32 +102,66 @@ membershipRouter.post('/create-checkout-session', (req, res) => __awaiter(void 0
                 },
             ],
             mode: 'payment',
-            success_url: 'http://localhost:3001/',
-            cancel_url: 'http://localhost:3001/',
+            success_url: 'http://localhost:3001/membership-success?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url: 'http://localhost:3001/membership',
+            metadata: {
+                userId,
+                type,
+                paymentMethod,
+                renewalFrequency: renewalFrequency.toString(),
+            },
         });
+        res.status(200).json({ id: session.id, url: session.url });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'An error occurred while creating the checkout session' });
+    }
+}));
+membershipRouter.post('/membership-success', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { session_id } = req.body;
+    if (!session_id || typeof session_id !== 'string') {
+        return res.status(400).json({ error: 'Invalid session ID' });
+    }
+    try {
+        const session = yield stripe.checkout.sessions.retrieve(session_id);
+        if (session.payment_status !== 'paid') {
+            return res.status(400).json({ error: 'Payment not completed' });
+        }
+        const metadata = session.metadata;
+        if (!metadata.userId || !metadata.type || !metadata.paymentMethod || !metadata.renewalFrequency) {
+            return res.status(400).json({ error: 'Invalid metadata' });
+        }
+        const existingMembership = yield index_1.prisma.membership.findUnique({
+            where: { personId: metadata.userId },
+        });
+        if (existingMembership) {
+            return res.status(200).json({ message: 'Membership already exists', membership: existingMembership });
+        }
         const joinDate = new Date();
-        const expiryDate = (0, date_fns_1.addMonths)(joinDate, renewalFrequency);
+        const expiryDate = (0, date_fns_1.addMonths)(joinDate, parseInt(metadata.renewalFrequency));
         const membership = yield index_1.prisma.membership.create({
             data: {
                 joinDate,
                 status: 'active',
                 expiryDate,
                 accessLevel: 'normal user',
-                fees: amount / 100,
-                renewalFrequency,
-                type,
-                paymentMethod: 'card',
+                fees: session.amount_total ? session.amount_total / 100 : 0,
+                renewalFrequency: parseInt(metadata.renewalFrequency),
+                type: metadata.type,
+                paymentMethod: metadata.paymentMethod,
                 url: (_a = session.url) !== null && _a !== void 0 ? _a : 'default_url',
                 person: {
-                    connect: { id: userId },
+                    connect: { id: metadata.userId },
                 },
             },
         });
-        res.status(200).json({ id: session.id, membership });
+        res.status(200).json({ message: 'Membership created successfully', membership });
     }
     catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'An error occurred while creating the checkout session' });
+        console.error('Error processing membership:', err);
+        res.status(500).json({ error: 'An error occurred while processing the membership', details: err });
     }
 }));
 membershipRouter.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {

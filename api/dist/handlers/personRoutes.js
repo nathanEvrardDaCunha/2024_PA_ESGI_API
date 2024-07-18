@@ -158,4 +158,19 @@ personRouter.delete('/admin/:id', (req, res) => __awaiter(void 0, void 0, void 0
         res.sendStatus(500); // Internal Server Error
     }
 }));
+personRouter.post("/reset-password", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            res.status(400).send({ error: "Email is required" });
+            return;
+        }
+        yield (0, personRepository_1.resetPassword)(email);
+        res.status(200).send({ message: "Password reset link sent to your email" });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ error: "Internal Server Error" });
+    }
+}));
 exports.default = personRouter;

@@ -24,8 +24,9 @@ function main() {
         const port = 3000;
         // Enable CORS for all routes
         app.use((0, cors_1.default)({
-            origin: "http://localhost:3001",
+            origin: ["http://localhost:3001", "http://localhost:3002", "http://185.216.27.210:3001", "http://185.216.27.210:3002"],
             optionsSuccessStatus: 200,
+            credentials: true,
         }));
         app.use(express_1.default.json());
         (0, routes_1.initRoutes)(app);

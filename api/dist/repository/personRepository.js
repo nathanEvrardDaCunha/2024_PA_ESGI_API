@@ -8,11 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deletePersonById = exports.loginAdmin = exports.loginUser = exports.registerUser = exports.updatePerson = exports.createPerson = exports.getPersonById = exports.getAllPerson = void 0;
+exports.deletePersonById = exports.loginAdmin = exports.loginUser = exports.resetPassword = exports.registerUser = exports.updatePerson = exports.createPerson = exports.getPersonById = exports.getAllPerson = void 0;
 const index_1 = require("../index");
 const bcrypt_1 = require("bcrypt");
 const auth_middleware_1 = require("../handlers/middleware/auth-middleware");
+const nodemailer_1 = __importDefault(require("nodemailer"));
 function getAllPerson() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -83,6 +87,68 @@ function registerUser(data) {
     });
 }
 exports.registerUser = registerUser;
+function resetPassword(email) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const person = yield index_1.prisma.person.findUnique({ where: { email } });
+            if (!person) {
+                throw new Error("User not found");
+            }
+            const temporaryPassword = generateTemporaryPassword();
+            const hashedPassword = yield (0, bcrypt_1.hash)(temporaryPassword, 10);
+            yield index_1.prisma.person.update({
+                where: { email },
+                data: { password: hashedPassword },
+            });
+            yield sendResetPasswordEmail(email, temporaryPassword);
+        }
+        catch (error) {
+            console.error("Error resetting password:", error);
+            throw error;
+        }
+    });
+}
+exports.resetPassword = resetPassword;
+function generateTemporaryPassword() {
+    const length = 8;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return password;
+}
+function sendResetPasswordEmail(email, temporaryPassword) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // Create a transporter using Elastic Email
+            const transporter = nodemailer_1.default.createTransport({
+                host: "smtp.elasticemail.com",
+                port: 2525,
+                secure: false,
+                auth: {
+                    user: "zharksmail2@gmail.com",
+                    pass: "9F3057339C068693F0201866AF0DBF99797F",
+                },
+            });
+            // Compose the email message
+            const mailOptions = {
+                from: "zharksmail2@gmail.com",
+                to: email,
+                subject: "Password Reset",
+                text: `Your temporary password is: ${temporaryPassword}`,
+                html: `<p>Your temporary password is: <strong>${temporaryPassword}</strong></p>`,
+            };
+            // Send the email
+            yield transporter.sendMail(mailOptions);
+            console.log(`Reset password email sent to ${email}`);
+        }
+        catch (error) {
+            console.error("Error sending reset password email:", error);
+            throw error;
+        }
+    });
+}
 function loginUser(data) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -133,12 +199,10 @@ function deletePersonById(id) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const deletedPerson = yield index_1.prisma.$transaction((prisma) => __awaiter(this, void 0, void 0, function* () {
-                // Delete session records
                 yield prisma.session.deleteMany({ where: { personId: id } });
-                // Delete or update related Donation records
                 yield prisma.donation.deleteMany({ where: { personId: id } });
                 yield prisma.membership.deleteMany({ where: { personId: id } });
-                // Disconnect the Person record from other related records
+                yield prisma.document.deleteMany({ where: { authorId: id } });
                 yield prisma.person.update({
                     where: { id },
                     data: {
@@ -149,7 +213,6 @@ function deletePersonById(id) {
                         choices: { disconnect: [] },
                     },
                 });
-                // Finally, delete the Person record
                 const deletedPerson = yield prisma.person.delete({ where: { id } });
                 return deletedPerson;
             }));

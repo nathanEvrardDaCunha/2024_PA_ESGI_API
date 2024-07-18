@@ -81,7 +81,6 @@ donationRouter.patch('/:id', (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
 }));
 donationRouter.post('/create-checkout-session', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     const { amount, userId, type, paymentMethod, message } = req.body;
     try {
         const session = yield stripe.checkout.sessions.create({
@@ -92,12 +91,6 @@ donationRouter.post('/create-checkout-session', (req, res) => __awaiter(void 0, 
                         currency: 'eur',
                         product_data: {
                             name: 'Donation',
-                            metadata: {
-                                userId,
-                                type,
-                                paymentMethod,
-                                message,
-                            },
                         },
                         unit_amount: amount,
                     },
@@ -105,66 +98,80 @@ donationRouter.post('/create-checkout-session', (req, res) => __awaiter(void 0, 
                 },
             ],
             mode: 'payment',
-            success_url: 'http://localhost:3001/',
-            cancel_url: 'http://localhost:3001/',
-        });
-        console.log('Checkout session created successfully:', session.id);
-        const transactionDate = new Date();
-        const donation = yield index_1.prisma.donation.create({
-            data: {
-                status: 'waiting',
+            success_url: 'http://localhost:3001/donation-success?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url: 'http://localhost:3001/donation',
+            metadata: {
+                userId,
                 type,
                 paymentMethod,
                 message,
-                amount: amount / 100,
-                transactionDate,
-                url: (_a = session.url) !== null && _a !== void 0 ? _a : 'default_url',
-                person: {
-                    connect: { id: userId },
-                },
             },
         });
-        res.status(200).json({ id: session.id, donation });
+        res.status(200).json({ id: session.id, url: session.url });
     }
     catch (err) {
         console.error(err);
         res.status(500).json({ error: 'An error occurred while creating the checkout session' });
     }
 }));
+// Create a Set to store processed session IDs
+const processedSessions = new Set();
 donationRouter.post('/donation-success', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { sessionId } = req.body;
-    console.log("GROS PPPPPPPPPPPPPPEPPPPPPPPPS");
+    const { session_id } = req.body;
+    if (!session_id || typeof session_id !== 'string') {
+        return res.status(400).json({ error: 'Invalid session ID' });
+    }
     try {
-        const session = yield stripe.checkout.sessions.retrieve(sessionId);
-        if (session.payment_status === 'paid') {
-            const donation = yield index_1.prisma.donation.findFirst({
+        console.log('Processing session ID:', session_id);
+        // Use a transaction to ensure atomicity
+        const result = yield index_1.prisma.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
+            // Check if a donation with this session ID already exists
+            const existingDonation = yield prisma.donation.findFirst({
                 where: {
-                    url: session.url,
+                    AND: [
+                        { status: 'validated' },
+                        { url: { contains: session_id } }
+                    ]
+                }
+            });
+            if (existingDonation) {
+                console.log('Donation already processed for this session');
+                return { status: 'already_processed', donation: existingDonation };
+            }
+            const session = yield stripe.checkout.sessions.retrieve(session_id);
+            if (session.payment_status !== 'paid') {
+                throw new Error('Payment not completed');
+            }
+            const metadata = session.metadata;
+            if (!metadata.userId || !metadata.type || !metadata.paymentMethod) {
+                throw new Error('Invalid metadata');
+            }
+            const newDonation = yield prisma.donation.create({
+                data: {
+                    status: 'validated',
+                    type: metadata.type,
+                    paymentMethod: metadata.paymentMethod,
+                    message: metadata.message || '',
+                    amount: session.amount_total ? session.amount_total / 100 : 0,
+                    transactionDate: new Date(),
+                    url: session.url || `default_url_${session_id}`, // Include session_id in the URL
+                    person: {
+                        connect: { id: metadata.userId },
+                    },
                 },
             });
-            if (donation) {
-                yield index_1.prisma.donation.update({
-                    where: {
-                        id: donation.id,
-                    },
-                    data: {
-                        status: 'validated',
-                    },
-                });
-                console.log("GROS PPPPPPPPPPPPPPEPPPPPPPPPS");
-                res.status(200).json({ message: 'Donation validated successfully' });
-            }
-            else {
-                res.status(404).json({ message: 'Donation not found' });
-            }
+            return { status: 'created', donation: newDonation };
+        }));
+        if (result.status === 'already_processed') {
+            res.status(200).json({ message: 'Donation already processed', donation: result.donation });
         }
         else {
-            res.status(400).json({ message: 'Payment not completed' });
+            res.status(200).json({ message: 'Donation created successfully', donation: result.donation });
         }
     }
     catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'An error occurred while validating the donation' });
+        console.error('Error processing donation:', err);
+        res.status(500).json({ error: 'An error occurred while processing the donation', details: err });
     }
 }));
 donationRouter.get('/generate-pdf/:donationId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
