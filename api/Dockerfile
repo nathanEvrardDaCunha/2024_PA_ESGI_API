@@ -43,4 +43,4 @@ COPY --from=build /app/.env ./
 EXPOSE 3000
 
 # Lancer le serveur Node.js
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:migrate:prod"]
