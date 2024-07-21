@@ -1,6 +1,5 @@
 import Joi from "joi";
 
-// Validation pour la création d'un document
 export const DocumentValidation = Joi.object({
     title: Joi.string().required(),
     description: Joi.string().required(),
@@ -10,7 +9,6 @@ export const DocumentValidation = Joi.object({
     groupIds: Joi.array().items(Joi.string().required()).optional(),
 });
 
-// Interface pour la création d'un document
 export interface DocumentRequest {
     title: string;
     description: string;
@@ -20,7 +18,6 @@ export interface DocumentRequest {
     groupIds?: string[];
 }
 
-// Validation pour la mise à jour d'un document
 export const DocumentUpdateValidation = Joi.object({
     title: Joi.string().optional(),
     description: Joi.string().optional(),
@@ -29,7 +26,6 @@ export const DocumentUpdateValidation = Joi.object({
     groupIds: Joi.array().items(Joi.string().required()).optional(),
 });
 
-// Interface pour la mise à jour d'un document
 export interface DocumentUpdateRequest {
     title?: string;
     creationDate?: Date;
@@ -44,13 +40,11 @@ export interface DocumentUpdateRequest {
     groupIds?: string[];
 }
 
-// Validation pour la liste des documents
 export const DocumentListValidation = Joi.object({
     page: Joi.number().min(1).optional(),
     limit: Joi.number().min(1).optional(),
 });
 
-// Interface pour la liste des documents
 export interface DocumentListRequest {
     page?: number;
     limit?: number;

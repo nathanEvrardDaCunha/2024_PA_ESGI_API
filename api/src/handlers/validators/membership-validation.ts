@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-// Validation pour la création d'une adhésion
+
 export const MembershipValidation = Joi.object({
     joinDate: Joi.date().required(),
     status: Joi.string().required(),
@@ -13,7 +13,7 @@ export const MembershipValidation = Joi.object({
     renewalFrequency: Joi.number().required(),
 });
 
-// Interface pour la création d'une adhésion
+
 export interface MembershipRequest {
     joinDate: Date;
     status: string;
@@ -26,7 +26,7 @@ export interface MembershipRequest {
     renewalFrequency: number;
 }
 
-// Validation pour la mise à jour d'une adhésion
+
 export const MembershipUpdateValidation = Joi.object({
     joinDate: Joi.date().optional(),
     status: Joi.string().optional(),
@@ -39,7 +39,7 @@ export const MembershipUpdateValidation = Joi.object({
     renewalFrequency: Joi.number().optional(),
 });
 
-// Interface pour la mise à jour d'une adhésion
+
 export interface MembershipUpdateRequest {
     joinDate?: Date;
     status?: string;
@@ -52,13 +52,13 @@ export interface MembershipUpdateRequest {
     renewalFrequency?: number;
 }
 
-// Validation pour la liste des adhésions
+
 export const MembershipListValidation = Joi.object({
     page: Joi.number().min(1).optional(),
     limit: Joi.number().min(1).optional(),
 });
 
-// Interface pour la liste des adhésions
+
 export interface MembershipListRequest {
     page?: number;
     limit?: number;

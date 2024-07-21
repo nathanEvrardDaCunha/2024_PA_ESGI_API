@@ -38,7 +38,7 @@ export const getTaskByPersonId = async (personId: string) => {
 
 		return personTask;
 	} catch (error) {
-		// Gérer les erreurs
+
 		throw new Error(`Error fetching task by user ID: ${error}`);
 	}
 };

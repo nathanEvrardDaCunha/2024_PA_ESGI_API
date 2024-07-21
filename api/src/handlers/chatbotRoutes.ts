@@ -1,11 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
-import { getActivityByPersonIdViaTask } from '../repository/activityRepository'; // Importer la fonction
-import { getAssemblyByPersonId } from '../repository/assemblyRepository'; // Importer la fonction
-import { getLocationByPersonId } from '../repository/locationsRepository'; // Importer la fonction
+import { getActivityByPersonIdViaTask } from '../repository/activityRepository';
+import { getAssemblyByPersonId } from '../repository/assemblyRepository';
+import { getLocationByPersonId } from '../repository/locationsRepository';
 import { getTaskByPersonId } from '../repository/taskRepository';
-import {getPersonById} from "../repository/personRepository"; // Importer la fonction
+import {getPersonById} from "../repository/personRepository";
 
 dotenv.config();
 
@@ -13,8 +13,8 @@ const chatbotRouter = express.Router();
 const assistant_id = String(process.env.ASST_ID);
 
 const pollRunStatus = async (threadId: string, runId: string) => {
-    const pollInterval = 2000; // 2 seconds
-    const maxAttempts = 30; // maximum 60 seconds
+    const pollInterval = 2000;
+    const maxAttempts = 30;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
         const runResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs/${runId}`, {

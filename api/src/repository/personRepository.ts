@@ -93,7 +93,7 @@ function generateTemporaryPassword() {
 
 async function sendResetPasswordEmail(email: string, temporaryPassword: string) {
 	try {
-		// Create a transporter using Elastic Email
+
 		const transporter = nodemailer.createTransport({
 			host: "smtp.elasticemail.com",
 			port: 2525,
@@ -104,7 +104,7 @@ async function sendResetPasswordEmail(email: string, temporaryPassword: string) 
 			},
 		});
 		
-		// Compose the email message
+
 		const mailOptions = {
 			from: "zharksmail2@gmail.com",
 			to: email,
@@ -113,7 +113,7 @@ async function sendResetPasswordEmail(email: string, temporaryPassword: string) 
 			html: `<p>Your temporary password is: <strong>${temporaryPassword}</strong></p>`,
 		};
 		
-		// Send the email
+
 		await transporter.sendMail(mailOptions);
 		console.log(`Reset password email sent to ${email}`);
 	} catch (error) {

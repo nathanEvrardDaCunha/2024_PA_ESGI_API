@@ -42,7 +42,7 @@ export async function getSurveyById(id: string) {
 
 export async function submitSurveyResponse(data: any) {
     try {
-        // Créez la réponse au sondage avec les réponses associées
+
         const response = await prisma.surveyResponse.create({
             data: {
                 surveyId: data.surveyId,
@@ -64,7 +64,7 @@ export async function submitSurveyResponse(data: any) {
                 },
             },
             include: {
-                answers: true, // Inclure les réponses dans le retour
+                answers: true,
             },
         });
         return response;

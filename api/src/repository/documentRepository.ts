@@ -30,48 +30,10 @@ export async function getDocumentById(id: string) {
 		throw error;
 	}
 }
-/*
+
 export async function getDocumentsByUser(userId: string) {
 	try {
-		// Récupérer les documents créés par l'utilisateur
-		const createdDocuments = await prisma.document.findMany({
-			where: { authorId: userId },
-		});
 
-		// Récupérer les groupes auxquels l'utilisateur appartient
-		const userGroups = await prisma.groupMembership.findMany({
-			where: { personId: userId },
-			select: { groupId: true },
-		});
-
-		const groupIds = userGroups.map((membership) => membership.groupId);
-
-		// Récupérer les documents associés aux groupes de l'utilisateur
-		const groupDocuments = await prisma.document.findMany({
-			where: {
-				groups: {
-					some: { id: { in: groupIds } },
-				},
-			},
-		});
-
-		// Combiner les documents créés et ceux des groupes
-		const allDocuments = [...createdDocuments, ...groupDocuments];
-
-		// Supprimer les doublons (au cas où un document est à la fois créé et attribué via un groupe)
-		const uniqueDocuments = allDocuments.filter(
-			(doc, index, self) => index === self.findIndex((d) => d.id === doc.id)
-		);
-
-		return uniqueDocuments;
-	} catch (error) {
-		console.error('Error fetching documents by user:', error);
-		throw error;
-	}
-}*/
-export async function getDocumentsByUser(userId: string) {
-	try {
-		// Récupérer les documents créés par l'utilisateur
 		const createdDocuments = await prisma.document.findMany({
 			where: { authorId: userId },
 			include: {
@@ -82,7 +44,7 @@ export async function getDocumentsByUser(userId: string) {
 			},
 		});
 
-		// Récupérer les groupes auxquels l'utilisateur appartient
+
 		const userGroups = await prisma.groupMembership.findMany({
 			where: { personId: userId },
 			select: { groupId: true },

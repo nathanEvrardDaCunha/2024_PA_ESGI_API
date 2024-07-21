@@ -6,8 +6,8 @@ export async function getAllChoices() {
     try {
         return await prisma.choice.findMany({
             include: {
-                topic: true, // Assume you want to include the related topic details
-                voters: true, // Include the voters related to each choice
+                topic: true,
+                voters: true,
             }
         });
     } catch (error) {

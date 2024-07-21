@@ -78,7 +78,6 @@ groupRouter.post('/:id/documents', async (req: Request, res: Response) => {
     }
 
     try {
-        // Appel de la méthode pour créer les PersonDocument
         const createdCount = await createPersonDocumentsFromGroup(groupId, documentId, path);
         res.status(200).json({ message: `Created ${createdCount} PersonDocument entries.` });
     } catch (error) {

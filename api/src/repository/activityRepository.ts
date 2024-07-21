@@ -29,9 +29,9 @@ export async function createActivity(data: ActivityRequest) {
 	try {
 		return await prisma.activity.create({ data: {
 				...data,
-				location: data.location ? { connect: data.location.map((id: string) => ({ id })) } : undefined, // Reliez les location à l'activité
-				equipment: data.equipment ? { connect: data.equipment.map((id: string) => ({ id })) } : undefined, // Reliez les location à l'activité
-				task: data.task ? { connect: data.task.map((id: string) => ({ id })) } : undefined, // Reliez les location à l'activité
+				location: data.location ? { connect: data.location.map((id: string) => ({ id })) } : undefined,
+				equipment: data.equipment ? { connect: data.equipment.map((id: string) => ({ id })) } : undefined,
+				task: data.task ? { connect: data.task.map((id: string) => ({ id })) } : undefined,
 				document: data.document ? { connect: data.document.map((id: string) => ({ id })) } : undefined, // Reliez les location à l'activité
 
 			}

@@ -28,7 +28,7 @@ export async function authenticateUser(req: Request, res: Response, next: NextFu
             return res.status(401).json({ error: 'Unauthorized: Invalid token' });
         }
 
-        req.user = { id: session.personId }; // Ajouter l'ID de l'utilisateur à la requête
+        req.user = { id: session.personId };
         next();
     } catch (error) {
         console.error('Erreur lors de l\'authentification :', error);
@@ -50,11 +50,10 @@ export async function generateToken(personId: string): Promise<string> {
 
 export async function validateToken(token: string): Promise<{ personId: string } | null> {
     const existingToken = await prisma.session.findUnique({
-        where: { token: token },  // Utiliser 'token' comme clé
+        where: { token: token },
     });
     if (!existingToken) return null;
     if (existingToken.expirationDate < new Date()) {
-        // Supprimer le token expiré
         await prisma.session.delete({ where: { token: token } });
         return null;
     }

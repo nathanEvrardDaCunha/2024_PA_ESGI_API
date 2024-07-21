@@ -1,6 +1,5 @@
 import Joi from "joi";
 
-// Validation pour la création d'une personne
 export const PersonValidation = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
@@ -11,7 +10,6 @@ export const PersonValidation = Joi.object({
     role: Joi.string().required(),
 });
 
-// Interface pour la création d'une personne
 export interface PersonRequest {
     email: string;
     password: string;
@@ -22,7 +20,6 @@ export interface PersonRequest {
     role: string;
 }
 
-// Validation pour la mise à jour d'une personne
 export const PersonUpdateValidation = Joi.object({
     email: Joi.string().email().optional(),
     password: Joi.string().optional(),
@@ -33,7 +30,6 @@ export const PersonUpdateValidation = Joi.object({
     role: Joi.string().optional(),
 });
 
-// Interface pour la mise à jour d'une personne
 export interface PersonUpdateRequest {
     email?: string;
     password?: string;
@@ -44,13 +40,11 @@ export interface PersonUpdateRequest {
     role?: string;
 }
 
-// Validation pour la liste de personnes
 export const PersonListValidation = Joi.object({
     page: Joi.number().min(1).optional(),
     limit: Joi.number().min(1).optional(),
 });
 
-// Interface pour la liste de personnes
 export interface PersonListRequest {
     page?: number;
     limit?: number;

@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-// Validation pour la création d'un emplacement
+
 export const LocationValidation = Joi.object({
     address: Joi.string().required(),
     country: Joi.string().required(),
@@ -11,7 +11,7 @@ export const LocationValidation = Joi.object({
     status: Joi.string().required(),
 });
 
-// Interface pour la création d'un emplacement
+
 export interface LocationRequest {
     address: string;
     country: string;
@@ -22,7 +22,7 @@ export interface LocationRequest {
     status: string;
 }
 
-// Validation pour la mise à jour d'un emplacement
+
 export const LocationUpdateValidation = Joi.object({
     address: Joi.string().optional(),
     country: Joi.string().optional(),
@@ -33,7 +33,7 @@ export const LocationUpdateValidation = Joi.object({
     status: Joi.string().optional(),
 });
 
-// Interface pour la mise à jour d'un emplacement
+
 export interface LocationUpdateRequest {
     address?: string;
     country?: string;
@@ -44,13 +44,13 @@ export interface LocationUpdateRequest {
     status?: string;
 }
 
-// Validation pour la liste des emplacements
+
 export const LocationListValidation = Joi.object({
     page: Joi.number().min(1).optional(),
     limit: Joi.number().min(1).optional(),
 });
 
-// Interface pour la liste des emplacements
+
 export interface LocationListRequest {
     page?: number;
     limit?: number;

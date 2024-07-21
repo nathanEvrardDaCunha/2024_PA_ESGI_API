@@ -2,65 +2,65 @@ import Joi from 'joi';
 import { TopicValidation, TopicRequest } from './topic-validation';
 import { SurveyValidation, SurveyRequest } from './survey-validation';
 
-// Validation pour la création d'une assemblée générale
+
 export const GeneralAssemblyValidation = Joi.object({
     meetingDate: Joi.date().required(),
     status: Joi.string().required(),
     outcome: Joi.string().required(),
     creationDate: Joi.date().required(),
     endingDate: Joi.date().required(),
-    person: Joi.array().items(Joi.string()).optional(), // Tableau Person
-    topics: Joi.array().items(TopicValidation).optional(), // Tableau Topic
-    surveys: Joi.array().items(SurveyValidation).optional(), // Tableau Survey
-    activityId: Joi.string().optional(), // ID de l'activité associée (optionnel)
+    person: Joi.array().items(Joi.string()).optional(),
+    topics: Joi.array().items(TopicValidation).optional(),
+    surveys: Joi.array().items(SurveyValidation).optional(),
+    activityId: Joi.string().optional(),
 });
 
-// Interface pour la création d'une assemblée générale
+
 export interface GeneralAssemblyRequest {
     meetingDate: Date;
     status: string;
     outcome: string;
     creationDate: Date;
     endingDate: Date;
-    person?: string[]; // Tableau Person
-    topics?: TopicRequest[]; // Tableau Topic
-    surveys?: SurveyRequest[]; // Tableau Survey
+    person?: string[];
+    topics?: TopicRequest[];
+    surveys?: SurveyRequest[];
     activityId?: string;
 }
 
-// Validation pour la mise à jour d'une assemblée générale
+
 export const GeneralAssemblyUpdateValidation = Joi.object({
     meetingDate: Joi.date().optional(),
     status: Joi.string().optional(),
     outcome: Joi.string().optional(),
     creationDate: Joi.date().optional(),
     endingDate: Joi.date().optional(),
-    person: Joi.array().items(Joi.string()).optional(), // Tableau Person
-    topics: Joi.array().items(Joi.string()).optional(), // Tableau Topic
-    surveys: Joi.array().items(SurveyValidation).optional(), // Tableau Survey
-    activityId: Joi.string().optional(), // ID de l'activité associée (optionnel)
+    person: Joi.array().items(Joi.string()).optional(),
+    topics: Joi.array().items(Joi.string()).optional(),
+    surveys: Joi.array().items(SurveyValidation).optional(),
+    activityId: Joi.string().optional(),
 });
 
-// Interface pour la mise à jour d'une assemblée générale
+
 export interface GeneralAssemblyUpdateRequest {
     meetingDate?: Date;
     status?: string;
     outcome?: string;
     creationDate?: Date;
     endingDate?: Date;
-    person?: string[]; // Tableau Person
-    topics?: string[]; // Tableau Topic
-    surveys?: SurveyRequest[]; // Tableau Survey
-    activityId?: string; // ID de l'activité associée (optionnel)
+    person?: string[];
+    topics?: string[];
+    surveys?: SurveyRequest[];
+    activityId?: string;
 }
 
-// Validation pour la liste des assemblées générales
+
 export const GeneralAssemblyListValidation = Joi.object({
     page: Joi.number().min(1).optional(),
     limit: Joi.number().min(1).optional(),
 });
 
-// Interface pour la liste des assemblées générales
+
 export interface GeneralAssemblyListRequest {
     page?: number;
     limit?: number;

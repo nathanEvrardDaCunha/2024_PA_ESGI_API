@@ -1,24 +1,20 @@
 import Joi from "joi";
 
-// Validation pour la création d'un choix
 export const ChoiceValidation = Joi.object({
     description: Joi.string().required(),
 });
 
-// Interface pour la création d'un choix
 export interface ChoiceRequest {
     round: number;
     description: string;
 
 }
 
-// Validation pour la mise à jour d'un choix
 export const ChoiceUpdateValidation = Joi.object({
     description: Joi.string().optional(),
-    topicId: Joi.string().optional(), // Optionnel, permet de changer le sujet lié
+    topicId: Joi.string().optional(),
 });
 
-// Interface pour la mise à jour d'un choix
 export interface ChoiceUpdateRequest {
     description?: string;
     topicId?: string;

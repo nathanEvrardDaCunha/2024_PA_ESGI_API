@@ -28,7 +28,7 @@ export async function createDonation(data: Prisma.DonationCreateInput) {
 	}
 }
 
-// Fonction pour récupérer les donations par ID utilisateur
+
 export async function getDonationsByUserId(personId: string): Promise<Donation[]> {
 	try {
 		const donations = await prisma.donation.findMany({

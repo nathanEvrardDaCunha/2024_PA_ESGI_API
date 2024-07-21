@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-// Validation pour la création d'un équipement
+
 export const EquipmentValidation = Joi.object({
     name: Joi.string().required(),
     description: Joi.string().required(),
@@ -12,7 +12,7 @@ export const EquipmentValidation = Joi.object({
     cost: Joi.number().required(),
 });
 
-// Interface pour la création d'un équipement
+
 export interface EquipmentRequest {
     name: string;
     description: string;
@@ -24,7 +24,7 @@ export interface EquipmentRequest {
     cost: number;
 }
 
-// Validation pour la mise à jour d'un équipement
+
 export const EquipmentUpdateValidation = Joi.object({
     name: Joi.string().optional(),
     description: Joi.string().optional(),
@@ -36,7 +36,7 @@ export const EquipmentUpdateValidation = Joi.object({
     cost: Joi.number().optional(),
 });
 
-// Interface pour la mise à jour d'un équipement
+
 export interface EquipmentUpdateRequest {
     name?: string;
     description?: string;
@@ -48,13 +48,13 @@ export interface EquipmentUpdateRequest {
     cost?: number;
 }
 
-// Validation pour la liste des équipements
+
 export const EquipmentListValidation = Joi.object({
     page: Joi.number().min(1).optional(),
     limit: Joi.number().min(1).optional(),
 });
 
-// Interface pour la liste des équipements
+
 export interface EquipmentListRequest {
     page?: number;
     limit?: number;
