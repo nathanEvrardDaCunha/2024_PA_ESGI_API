@@ -18,10 +18,12 @@ const sessionRoutes_1 = __importDefault(require("./sessionRoutes"));
 const choiceRoutes_1 = __importDefault(require("./choiceRoutes"));
 const groupRoutes_1 = __importDefault(require("./groupRoutes"));
 const surveyRoutes_1 = __importDefault(require("./surveyRoutes"));
+const chatbotRoutes_1 = __importDefault(require("./chatbotRoutes"));
 const initRoutes = (app) => {
     //TODO : Every routes have a personal router. Is it better to just have only one ?
     app.use('/persons', personRoutes_1.default);
     app.use('/locations', locationRoutes_1.default);
+    app.use('/chatbot', chatbotRoutes_1.default);
     app.use('/activities', activityRoutes_1.default);
     app.use('/topics', topicRoutes_1.default);
     app.use('/groups', groupRoutes_1.default);

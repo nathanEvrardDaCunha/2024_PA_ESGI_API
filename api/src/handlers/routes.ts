@@ -13,6 +13,7 @@ import sessionRouter from "./sessionRoutes";
 import choiceRouter from "./choiceRoutes";
 import groupRouter from "./groupRoutes";
 import surveyRouter from "./surveyRoutes";
+import chatbotRouter from "./chatbotRoutes";
 
 
 export const initRoutes = (app: express.Express) => {
@@ -21,7 +22,7 @@ export const initRoutes = (app: express.Express) => {
 	
 	app.use('/persons', personRouter);
 	app.use('/locations', locationRouter);
-	
+	app.use('/chatbot', chatbotRouter);
 	app.use('/activities', activityRouter);
 	app.use('/topics', topicRouter);
 	app.use('/groups', groupRouter);
